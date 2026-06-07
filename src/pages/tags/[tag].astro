@@ -1,0 +1,41 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PostCard from '@/components/PostCard.astro';
+import { getAllPosts, getPostsByTag, paginatePosts } from '@/lib/content';
+import { siteConfig } from '@/config';
+
+export async function getStaticPaths() {
+  const allPosts = getAllPosts(import.meta.glob('../../posts/*.md', { eager: true }));
+  const tags = [...new Set(allPosts.flatMap(p => p.tags.map(t => t.toLowerCase())))];
+  return tags.map(tag => ({ params: { tag }, props: { tag } }));
+}
+
+const { tag } = Astro.props;
+const allPosts = getAllPosts(import.meta.glob('../../posts/*.md', { eager: true }));
+const posts = getPostsByTag(tag, allPosts);
+const url = new URL(Astro.request.url);
+const currentPage = Math.max(1, parseInt(url.searchParams.get('page') || '1') || 1);
+const { items, totalPages } = paginatePosts(posts, currentPage, siteConfig.content.postsPerPage);
+---
+
+<BaseLayout title={`Tag: ${tag}`} description={`Posts tagged with ${tag}`}>
+  <div class="container">
+    <h1 class="page-title"># {tag}<span class="count">({posts.length})</span></h1>
+    <div class="post-list">
+      {items.map(post => (
+        <PostCard slug={post.slug} title={post.title} date={post.date}
+          description={post.description} tags={post.tags}
+          readingTime={post.readingTime} updated={post.updated} />
+      ))}
+    </div>
+    {totalPages > 1 && <a href={`/tags/${tag}?page=${currentPage + 1}`} class="more">More →</a>}
+  </div>
+</BaseLayout>
+
+<style>
+  .page-title { font-size: 1.4rem; margin: 2rem 0 1.5rem; font-weight: 600; }
+  .count { font-weight: 400; color: #bbb; margin-left: 0.4rem; font-size: 0.9rem; }
+  .more { display: inline-block; margin-top: 1.5rem; font-size: 0.9rem; color: #888; }
+  .more:hover { color: #000; }
+  [data-theme='dark'] .more:hover { color: #fff; }
+</style>

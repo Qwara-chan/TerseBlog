@@ -1,0 +1,97 @@
+---
+import type { HeadingItem } from '@/lib/types';
+export interface Props { headings: HeadingItem[]; maxDepth?: number; }
+const { headings, maxDepth = 3 } = Astro.props;
+---
+
+<aside class="sidebar-toc">
+  <div class="toc-header">
+    <span class="toc-title">Contents</span>
+    <label class="toc-toggle">
+      <input type="checkbox" data-toc-toggle-checkbox checked />
+      Show
+    </label>
+  </div>
+  <nav class="toc-nav">
+    <ul class="toc-list">
+      {headings.map((h) => (
+        <li class={`toc-item l${h.depth}`}>
+          <a href={`#${h.id}`} class="toc-link">{h.text}</a>
+          {h.children && h.children.length > 0 && (
+            <ul class="toc-children">
+              {h.children.filter(c => c.depth <= maxDepth).map(c => (
+                <li class={`toc-item l${c.depth}`}>
+                  <a href={`#${c.id}`} class="toc-link">{c.text}</a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+      ))}
+    </ul>
+  </nav>
+</aside>
+
+<script>
+  // Scroll-spy
+  const links = document.querySelectorAll('.toc-link');
+  const targets = [...links].map(l => {
+    const id = l.getAttribute('href')?.slice(1);
+    return id ? document.getElementById(id) : null;
+  }).filter(Boolean);
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      const link = document.querySelector(`.toc-link[href="#${e.target.id}"]`);
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        link?.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-80px 0px -70% 0px' });
+  targets.forEach(h => h && obs.observe(h));
+
+  // TOC toggle
+  const cb = document.querySelector('[data-toc-toggle-checkbox]');
+  function sync() {
+    const v = localStorage.getItem('astro-blog-toc-visible');
+    const shown = v !== 'false';
+    if (cb) cb.checked = shown;
+    document.documentElement.setAttribute('data-toc-visible', String(shown));
+  }
+  sync();
+  cb?.addEventListener('change', function() {
+    localStorage.setItem('astro-blog-toc-visible', String(this.checked));
+    document.documentElement.setAttribute('data-toc-visible', String(this.checked));
+  });
+</script>
+
+<style>
+  .sidebar-toc {
+    position: sticky; top: 5rem;
+    max-height: calc(100vh - 6rem); overflow-y: auto;
+    width: 220px; padding-left: 1.5rem;
+    border-left: 1px solid #eee;
+  }
+  [data-theme='dark'] .sidebar-toc { border-color: #222; }
+  .toc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+  .toc-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+  .toc-toggle { font-size: 0.7rem; color: #999; cursor: pointer; display: flex; align-items: center; gap: 0.2rem; }
+  [data-theme='dark'] .toc-toggle { color: #777; }
+  .toc-toggle input { width: 12px; height: 12px; cursor: pointer; accent-color: #000; }
+  [data-theme='dark'] .toc-toggle input { accent-color: #fff; }
+  .toc-list { list-style: none; }
+  .toc-children { list-style: none; padding-left: 0.75rem; }
+  .toc-item { margin: 0.2rem 0; }
+  .toc-link {
+    display: block; font-size: 0.8rem; color: #888; padding: 0.1rem 0;
+    border-left: 1px solid transparent; padding-left: 0.5rem;
+    transition: all 0.15s;
+  }
+  [data-theme='dark'] .toc-link { color: #777; }
+  .toc-link:hover { color: #000; }
+  [data-theme='dark'] .toc-link:hover { color: #fff; }
+  .toc-link.active { color: #000; border-left-color: #000; }
+  [data-theme='dark'] .toc-link.active { color: #fff; border-left-color: #fff; }
+  .l3 .toc-link { font-size: 0.75rem; }
+  @media (max-width: 1024px) { .sidebar-toc { display: none; } }
+</style>

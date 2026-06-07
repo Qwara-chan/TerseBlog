@@ -1,0 +1,38 @@
+---
+export interface Props {
+  current: 'asc' | 'desc';
+}
+const { current } = Astro.props;
+---
+
+<button class="sort-toggle" data-sort-toggle data-current={current} aria-label="Toggle sort order">
+  <span class="sort-label">{current === 'desc' ? 'Newest' : 'Oldest'}</span>
+</button>
+
+<script>
+  const toggle = document.querySelector('[data-sort-toggle]');
+  toggle?.addEventListener('click', () => {
+    const cur = toggle.getAttribute('data-current');
+    const next = cur === 'desc' ? 'asc' : 'desc';
+    const url = new URL(window.location.href);
+    url.searchParams.set('sort', next);
+    window.history.replaceState({}, '', url);
+    toggle.setAttribute('data-current', next);
+    toggle.querySelector('.sort-label')!.textContent = next === 'desc' ? 'Newest' : 'Oldest';
+    const list = document.querySelector('[data-post-list]');
+    if (!list) return;
+    const items = [...list.querySelectorAll('[data-post-item]')];
+    items.sort((a, b) => {
+      const dA = a.getAttribute('data-post-date') || '', dB = b.getAttribute('data-post-date') || '';
+      return next === 'desc' ? new Date(dB).getTime() - new Date(dA).getTime() : new Date(dA).getTime() - new Date(dB).getTime();
+    });
+    items.forEach(item => list.appendChild(item));
+  });
+</script>
+
+<style>
+  .sort-toggle { font-size: 0.8rem; color: #888; cursor: pointer; border: 1px solid #ddd; padding: 0.3em 0.8em; transition: all 0.2s; }
+  [data-theme='dark'] .sort-toggle { border-color: #333; color: #999; }
+  .sort-toggle:hover { border-color: #000; color: #000; }
+  [data-theme='dark'] .sort-toggle:hover { border-color: #fff; color: #fff; }
+</style>

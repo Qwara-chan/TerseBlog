@@ -1,0 +1,56 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PostCard from '@/components/PostCard.astro';
+import Pagination from '@/components/Pagination.astro';
+import SortToggle from '@/components/SortToggle.astro';
+import { getAllPosts, paginatePosts } from '@/lib/content';
+import { siteConfig } from '@/config';
+
+const allPosts = getAllPosts(import.meta.glob('../posts/*.md', { eager: true }));
+const url = new URL(Astro.request.url);
+const pageParam = url.searchParams.get('page');
+const sortParam = url.searchParams.get('sort');
+const currentPage = Math.max(1, parseInt(pageParam || '1') || 1);
+const sorted = [...allPosts];
+if (sortParam === 'asc') sorted.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+const { items: posts, totalPages } = paginatePosts(sorted, currentPage, siteConfig.content.postsPerPage);
+---
+
+<BaseLayout title={siteConfig.title} description={siteConfig.description}>
+  <div class="container">
+    <section class="hero">
+      <h1 class="hero-title">{siteConfig.title}</h1>
+      <p class="hero-desc">{siteConfig.description}</p>
+    </section>
+
+    <div class="list-header">
+      <span class="list-count">{allPosts.length} posts</span>
+      <SortToggle current={sortParam === 'asc' ? 'asc' : 'desc'} />
+    </div>
+
+    <div class="post-list" data-post-list>
+      {posts.map((post) => (
+        <div data-post-item data-post-date={post.date}>
+          <PostCard slug={post.slug} title={post.title} date={post.date}
+            description={post.description} tags={post.tags}
+            readingTime={post.readingTime} updated={post.updated} />
+        </div>
+      ))}
+    </div>
+
+    {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} basePath="/" />}
+  </div>
+</BaseLayout>
+
+<style>
+  .hero { text-align: center; padding: 3rem 0 2.5rem; border-bottom: 1px solid #ddd; margin-bottom: 2rem; }
+  [data-theme='dark'] .hero { border-color: #222; }
+  .hero-title { font-size: 2.2rem; margin: 0 0 0.3rem; letter-spacing: -0.03em; }
+  .hero-desc { color: #888; font-size: 0.95rem; }
+  .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+  .list-count { font-size: 0.8rem; color: #bbb; text-transform: uppercase; letter-spacing: 0.05em; }
+  @media (max-width: 768px) {
+    .hero-title { font-size: 1.6rem; }
+    .hero { padding: 2rem 0 1.5rem; }
+  }
+</style>

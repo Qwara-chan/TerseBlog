@@ -1,0 +1,36 @@
+---
+import { formatDate } from '@/lib/utils';
+export interface Props { originalDate: string; updatedDate?: string; }
+const { originalDate, updatedDate } = Astro.props;
+const hasUpdate = updatedDate && updatedDate !== originalDate;
+---
+
+{hasUpdate && (
+  <div class="diff-viewer">
+    <p class="diff-text">
+      Updated on <time datetime={updatedDate}>{formatDate(updatedDate)}</time>
+      <button class="diff-toggle" data-diff-toggle>details →</button>
+    </p>
+    <div class="diff-details" data-diff-details hidden>
+      <p>Originally published on {formatDate(originalDate)}. Latest revision: {formatDate(updatedDate)}.</p>
+    </div>
+  </div>
+)}
+
+<script>
+  const toggle = document.querySelector('[data-diff-toggle]');
+  const details = document.querySelector('[data-diff-details]');
+  toggle?.addEventListener('click', () => {
+    const hidden = details?.hasAttribute('hidden');
+    if (hidden) { details?.removeAttribute('hidden'); toggle!.textContent = 'hide ↑'; }
+    else { details?.setAttribute('hidden', ''); toggle!.textContent = 'details →'; }
+  });
+</script>
+
+<style>
+  .diff-viewer { font-size: 0.85rem; color: #888; margin: 1.5rem 0; padding: 0.75rem 0; border-bottom: 1px solid #eee; }
+  [data-theme='dark'] .diff-viewer { border-color: #222; }
+  .diff-text { margin: 0; }
+  .diff-toggle { text-decoration: underline; cursor: pointer; color: inherit; margin-left: 0.3em; }
+  .diff-details { margin-top: 0.5rem; color: #bbb; font-size: 0.8rem; }
+</style>

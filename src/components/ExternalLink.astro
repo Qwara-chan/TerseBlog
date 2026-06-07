@@ -1,0 +1,16 @@
+---
+import { isExternalUrl } from '@/lib/utils';
+export interface Props { href: string; class?: string; }
+const { href, class: className } = Astro.props;
+const external = isExternalUrl(href);
+---
+
+<a href={href} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})} class={className}>
+  <slot />
+  {external && <span class="ext">↗</span>}
+</a>
+
+<style>
+  .ext { font-size: 0.75em; margin-left: 0.15em; opacity: 0.4; }
+  a:hover .ext { opacity: 0.8; }
+</style>

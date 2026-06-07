@@ -1,0 +1,75 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import TOC from '@/components/TOC.astro';
+import DiffViewer from '@/components/DiffViewer.astro';
+import { getAllPosts, getAdjacentPosts, generateTOC } from '@/lib/content';
+import { formatDate, estimateReadingTime } from '@/lib/utils';
+import { siteConfig } from '@/config';
+
+export async function getStaticPaths() {
+  const modules = import.meta.glob('../../posts/*.md', { eager: true });
+  const posts = getAllPosts(modules);
+  return Object.entries(modules).map(([path, mod]) => {
+    const slug = path.split('/').pop()?.replace(/\.(md|mdx)$/, '') || '';
+    const post = posts.find(p => p.slug === slug);
+    if (!post) return null;
+    return { params: { slug }, props: { post, Content: (mod as any).Content } };
+  }).filter(Boolean);
+}
+
+const { post, Content } = Astro.props;
+const allPosts = getAllPosts(import.meta.glob('../../posts/*.md', { eager: true }));
+const { prev, next } = getAdjacentPosts(post.slug, allPosts);
+const headings = generateTOC(post.content, siteConfig.content.tocMaxDepth);
+const readingTime = estimateReadingTime(post.content);
+---
+
+<BaseLayout title={post.title} description={post.description} canonical={`${siteConfig.site}/posts/${post.slug}`}>
+  <div class="container post-page">
+    <div class="post-layout">
+      <article class="post-content">
+        <header class="post-header">
+          <h1 class="post-title">{post.title}</h1>
+          <div class="post-meta">
+            <time datetime={post.date}>{formatDate(post.date)}</time>
+            <span class="dot">·</span>
+            <span>{readingTime} min</span>
+            {post.tags.length > 0 && <><span class="dot">·</span> {post.tags.map(t => <a href={`/tags/${t.toLowerCase()}`} class="tag">{t}</a>)}</>}
+          </div>
+        </header>
+
+        <DiffViewer originalDate={post.date} updatedDate={post.updated} />
+
+        <div class="prose"><Content /></div>
+
+        <nav class="post-nav">
+          {prev && <a href={`/posts/${prev.slug}`} class="nav-card"><span class="nav-label">← Previous</span><span class="nav-title">{prev.title}</span></a>}
+          <span></span>
+          {next && <a href={`/posts/${next.slug}`} class="nav-card next"><span class="nav-label">Next →</span><span class="nav-title">{next.title}</span></a>}
+        </nav>
+      </article>
+      {headings.length > 0 && <TOC headings={headings} maxDepth={siteConfig.content.tocMaxDepth} />}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .post-page { padding: 2rem 0; }
+  .post-layout { display: flex; gap: 3rem; }
+  .post-content { flex: 1; min-width: 0; }
+  .post-header { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid #ddd; }
+  [data-theme='dark'] .post-header { border-color: #222; }
+  .post-title { font-size: 1.8rem; margin: 0 0 0.6rem; letter-spacing: -0.02em; }
+  .post-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 0.3rem; font-size: 0.85rem; color: #999; }
+  [data-theme='dark'] .post-meta { color: #777; }
+  .dot { color: #ddd; }
+  [data-theme='dark'] .dot { color: #333; }
+  .post-nav { display: flex; justify-content: space-between; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #ddd; gap: 1rem; }
+  [data-theme='dark'] .post-nav { border-color: #222; }
+  .nav-card { flex: 1; padding: 0.75rem 0; }
+  .nav-card.next { text-align: right; }
+  .nav-label { font-size: 0.8rem; color: #bbb; }
+  .nav-title { font-weight: 500; font-size: 0.9rem; }
+  .nav-card:hover .nav-title { text-decoration: underline; }
+  @media (max-width: 1024px) { .post-layout { flex-direction: column; } .post-title { font-size: 1.4rem; } .post-nav { flex-direction: column; } .nav-card.next { text-align: left; } }
+</style>

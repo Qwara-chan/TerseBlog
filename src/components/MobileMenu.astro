@@ -1,0 +1,32 @@
+<button class="hamburger" data-hamburger aria-label="Menu">
+  <span></span><span></span><span></span>
+</button>
+
+<script>
+  document.querySelector('[data-hamburger]')?.addEventListener('click', () => {
+    document.dispatchEvent(new CustomEvent('mobile-menu-open'));
+  });
+</script>
+
+<style>
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px;
+    cursor: pointer;
+    background: none;
+    border: none;
+  }
+  .hamburger span {
+    width: 22px;
+    height: 2px;
+    background: #000;
+    border-radius: 0;
+    transition: transform 0.3s;
+  }
+  [data-theme='dark'] .hamburger span { background: #eee; }
+  @media (max-width: 768px) {
+    .hamburger { display: flex; }
+  }
+</style>

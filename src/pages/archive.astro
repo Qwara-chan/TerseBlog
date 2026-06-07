@@ -1,0 +1,52 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getAllPosts } from '@/lib/content';
+import { formatDate, groupPostsByYear } from '@/lib/utils';
+import { siteConfig } from '@/config';
+
+const allPosts = getAllPosts(import.meta.glob('../posts/*.md', { eager: true }));
+const grouped = groupPostsByYear(allPosts);
+---
+
+<BaseLayout title="Archive" description="All posts by year">
+  <div class="container archive">
+    <h1 class="page-title">Archive</h1>
+    {allPosts.length === 0 ? (
+      <p class="empty">No posts yet.</p>
+    ) : (
+      [...grouped.entries()].map(([year, posts]) => (
+        <section class="year-section">
+          <h2 class="year">{year}</h2>
+          <ul class="archive-list">
+            {posts.map((post: any) => (
+              <li class="archive-item">
+                <time class="archive-date" datetime={post.date}>
+                  {new Date(post.date).toLocaleDateString(siteConfig.language, { month: 'long', day: 'numeric' })}
+                </time>
+                <a href={`/posts/${post.slug}`} class="archive-title">{post.title}</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .archive { padding: 2rem 0; max-width: 600px; margin: 0 auto; }
+  .page-title { font-size: 1.8rem; margin-bottom: 2rem; }
+  .year-section { margin-bottom: 2rem; }
+  .year { font-size: 1.3rem; margin-bottom: 0.75rem; font-weight: 600; }
+  .archive-list { list-style: none; }
+  .archive-item {
+    display: flex; align-items: baseline; gap: 1rem;
+    padding: 0.4rem 0; border-bottom: 1px solid #eee;
+  }
+  [data-theme='dark'] .archive-item { border-color: #1a1a1a; }
+  .archive-date { flex-shrink: 0; width: 110px; font-size: 0.8rem; color: #999; }
+  .archive-title { font-size: 0.9rem; transition: color 0.2s; }
+  .archive-title:hover { text-decoration: underline; }
+  .empty { color: #888; text-align: center; padding: 3rem; }
+  @media (max-width: 768px) { .archive-item { flex-direction: column; gap: 0.1rem; } .archive-date { width: auto; } }
+</style>

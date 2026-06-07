@@ -1,0 +1,115 @@
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.8;
+  font-size: 1rem;
+  color: #000;
+  background: #fff;
+}
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; height: auto; }
+ul, ol { list-style: none; }
+button { cursor: pointer; font: inherit; border: none; background: none; }
+
+/* ── Dark mode ── */
+[data-theme='dark'] body {
+  color: #eee;
+  background: #111;
+}
+
+/* ── Typography ── */
+h1 { font-size: 2rem; font-weight: 700; margin: 2em 0 0.5em; letter-spacing: -0.02em; }
+h2 { font-size: 1.4rem; font-weight: 600; margin: 1.5em 0 0.5em; }
+h3 { font-size: 1.15rem; font-weight: 600; margin: 1.2em 0 0.4em; }
+h4 { font-size: 1rem; font-weight: 600; margin: 1em 0 0.4em; }
+p { margin: 0.8em 0; line-height: 1.9; }
+code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.9em; padding: 0.1em 0.3em;
+  background: #f0f0f0; border-radius: 3px;
+}
+[data-theme='dark'] code { background: #222; }
+pre { background: #f5f5f5; padding: 1.2em; border-radius: 0; overflow-x: auto; margin: 1.2em 0; }
+[data-theme='dark'] pre { background: #1a1a1a; }
+pre code { background: none; padding: 0; }
+blockquote {
+  border-left: 3px solid #000;
+  padding: 0.5em 1em; margin: 1.2em 0;
+  color: #666;
+}
+[data-theme='dark'] blockquote { border-left-color: #eee; color: #999; }
+hr { border: none; border-top: 1px solid #ddd; margin: 2.5em 0; }
+[data-theme='dark'] hr { border-color: #333; }
+
+/* ── Layout ── */
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* ── Prose (article content) ── */
+.prose { line-height: 1.9; }
+.prose a { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.prose a:hover { text-decoration-thickness: 2px; }
+.prose ul, .prose ol { list-style: disc; padding-left: 1.5em; margin: 0.6em 0; }
+.prose ol { list-style: decimal; }
+.prose li { margin: 0.2em 0; }
+.prose table { width: 100%; border-collapse: collapse; margin: 1.2em 0; font-size: 0.9em; }
+.prose th, .prose td { border: 1px solid #ddd; padding: 0.5em 0.75em; text-align: left; }
+.prose th { background: #f5f5f5; font-weight: 600; }
+[data-theme='dark'] .prose th, [data-theme='dark'] .prose td { border-color: #333; }
+[data-theme='dark'] .prose th { background: #1a1a1a; }
+.prose img { max-width: 100%; height: auto; margin: 1.5em 0; }
+.prose img + em { display: block; text-align: center; font-size: 0.85em; color: #888; margin-top: -1em; }
+
+/* ── Tags ── */
+.tag {
+  display: inline-block; font-size: 0.75rem;
+  padding: 0.1em 0.5em; margin: 0.15em;
+  border: 1px solid #ddd; text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+[data-theme='dark'] .tag { border-color: #444; }
+.tag:hover { border-color: #000; }
+[data-theme='dark'] .tag:hover { border-color: #fff; }
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.4em;
+  padding: 0.6em 1.2em;
+  font-size: 0.85rem; font-weight: 500;
+  border: 1px solid #000;
+  transition: all 0.2s;
+}
+[data-theme='dark'] .btn { border-color: #eee; }
+.btn:hover { background: #000; color: #fff; }
+[data-theme='dark'] .btn:hover { background: #eee; color: #111; }
+
+/* ── Heading Anchors ── */
+.heading-anchor {
+  margin-left: 0.4em; font-size: 0.8em;
+  opacity: 0; transition: opacity 0.2s;
+  text-decoration: none !important;
+}
+:hover > .heading-anchor { opacity: 0.3; }
+.heading-anchor:hover { opacity: 1 !important; }
+
+/* ── Utilities ── */
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+.text-center { text-align: center; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  body { font-size: 0.95rem; }
+  h1 { font-size: 1.6rem; }
+  h2 { font-size: 1.2rem; }
+  .container { padding: 0 1rem; }
+}
+
+/* ── Dark mode overrides for components (Astro scoping workaround) ── */
+[data-theme='dark'] .hamburger span { background: #eee !important; }
+[data-theme='dark'] .site-header { border-color: #333 !important; }
+[data-theme='dark'] .site-footer { border-color: #333 !important; }

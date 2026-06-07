@@ -1,0 +1,43 @@
+---
+import { formatDate } from '@/lib/utils';
+
+export interface Props {
+  slug: string; title: string; date: string; description: string;
+  tags: string[]; readingTime: number; updated?: string;
+}
+const { slug, title, date, description, tags, readingTime, updated } = Astro.props;
+const showUpdated = updated && new Date(updated).getTime() - new Date(date).getTime() > 3 * 86400000;
+---
+
+<article class="post-card">
+  <a href={`/posts/${slug}`}>
+    <h2 class="post-title">{title}</h2>
+    <p class="post-desc">{description}</p>
+    <div class="post-meta">
+      <time datetime={date}>{formatDate(date)}</time>
+      <span class="dot">·</span>
+      <span>{readingTime} min</span>
+      {showUpdated && <><span class="dot">·</span><span class="updated">Updated</span></>}
+    </div>
+    <div class="post-tags">
+      {tags.map((tag) => <span class="tag">{tag}</span>)}
+    </div>
+  </a>
+</article>
+
+<style>
+  .post-card {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid #eee;
+  }
+  [data-theme='dark'] .post-card { border-color: #222; }
+  .post-card:last-child { border-bottom: none; }
+  .post-title { font-size: 1.2rem; margin: 0 0 0.4rem; }
+  .post-desc { color: #666; font-size: 0.9rem; line-height: 1.7; margin-bottom: 0.5rem; }
+  [data-theme='dark'] .post-desc { color: #999; }
+  .post-meta { font-size: 0.8rem; color: #999; display: flex; align-items: center; gap: 0.3rem; margin-bottom: 0.4rem; }
+  [data-theme='dark'] .post-meta { color: #777; }
+  .dot { color: #ddd; }
+  .updated { font-style: italic; }
+  .post-tags { display: flex; flex-wrap: wrap; gap: 0.15rem; }
+</style>

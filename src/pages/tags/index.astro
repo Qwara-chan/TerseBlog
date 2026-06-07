@@ -1,0 +1,31 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getAllPosts, getAllTags } from '@/lib/content';
+
+const allPosts = getAllPosts(import.meta.glob('../../posts/*.md', { eager: true }));
+const tags = getAllTags(allPosts);
+const maxCount = Math.max(...tags.map(t => t.count), 1);
+---
+
+<BaseLayout title="Tags" description="Browse all tags">
+  <div class="container">
+    <h1 class="page-title">Tags</h1>
+    <div class="tag-cloud">
+      {tags.map(({ tag, count }) => (
+        <a href={`/tags/${tag.toLowerCase()}`} class="tag-item" style={`--scale: ${0.8 + count / maxCount * 1.2}`}>
+          {tag}<span class="tag-count">{count}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-title { font-size: 1.8rem; margin: 2rem 0 1.5rem; }
+  .tag-cloud { display: flex; flex-wrap: wrap; gap: 0.5rem 0.75rem; padding: 1.5rem 0; }
+  .tag-item { font-size: calc(var(--scale, 1) * 0.9rem); color: #666; border: 1px solid #ddd; padding: 0.2em 0.8em; transition: all 0.2s; }
+  [data-theme='dark'] .tag-item { color: #999; border-color: #333; }
+  .tag-item:hover { border-color: #000; color: #000; }
+  [data-theme='dark'] .tag-item:hover { border-color: #fff; color: #fff; }
+  .tag-count { font-size: 0.75em; color: #bbb; margin-left: 0.3em; }
+</style>

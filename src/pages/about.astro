@@ -1,0 +1,37 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { siteConfig } from '@/config';
+---
+
+<BaseLayout title="About" description="About this blog">
+  <div class="container about">
+    <h1 class="page-title">About</h1>
+    <div class="about-section">
+      <h2>{siteConfig.author.name}</h2>
+      <p class="bio">{siteConfig.author.bio}</p>
+      <div class="social">
+        {siteConfig.author.social.github && <a href={siteConfig.author.social.github} target="_blank" rel="noopener noreferrer">GitHub</a>}
+        {siteConfig.author.social.twitter && <a href={siteConfig.author.social.twitter} target="_blank" rel="noopener noreferrer">Twitter</a>}
+      </div>
+    </div>
+    <div class="about-section">
+      <h2>About this blog</h2>
+      <p>Built with <a href="https://astro.build">Astro</a>. Features Markdown content, LaTeX math, full-text search, dark mode, RSS feed, and more.</p>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .about { padding: 2rem 0; max-width: 600px; margin: 0 auto; }
+  .page-title { font-size: 1.8rem; margin-bottom: 2rem; }
+  .about-section { margin-bottom: 2.5rem; }
+  .about-section h2 { font-size: 1.1rem; margin-bottom: 0.5rem; font-weight: 600; }
+  .bio { color: #666; font-size: 0.95rem; }
+  [data-theme='dark'] .bio { color: #999; }
+  .social { display: flex; gap: 1rem; margin-top: 0.75rem; }
+  .social a { font-size: 0.85rem; color: #666; }
+  [data-theme='dark'] .social a { color: #999; }
+  .social a:hover { color: #000; text-decoration: underline; }
+  [data-theme='dark'] .social a:hover { color: #fff; }
+  .about-section a { text-decoration: underline; }
+</style>
