@@ -4,6 +4,7 @@ import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import BackToTop from '@/components/BackToTop.astro';
 import Search from '@/components/Search.astro';
+import SettingsPanel from '@/components/SettingsPanel.astro';
 import '@/styles/global.css';
 import '@/styles/interactivity.css';
 
@@ -110,6 +111,15 @@ const pageDescription = description || siteConfig.description;
         document.documentElement.setAttribute('data-toc-visible', tocVisible);
       }
 
+      // Settings: font-size, content-width, font-family, toc-visible
+      var settings = ['font-size', 'content-width', 'font-family', 'toc-visible'];
+      var defaults = { 'font-size': 'medium', 'content-width': 'normal', 'font-family': 'sans', 'toc-visible': 'true' };
+      for (var i = 0; i < settings.length; i++) {
+        var key = settings[i];
+        var val = localStorage.getItem('astro-blog-' + key) || defaults[key];
+        if (val) document.documentElement.setAttribute('data-' + key, val);
+      }
+
       // Re-enable transitions after a microtask
       requestAnimationFrame(function() {
         document.documentElement.classList.remove('disable-transitions');
@@ -127,6 +137,8 @@ const pageDescription = description || siteConfig.description;
 
   <Footer />
   <BackToTop />
+
+  <SettingsPanel />
 
   <!-- Mobile Menu Overlay & Drawer (body level, avoids header's backdrop-filter issue) -->
   <div class="mobile-overlay" data-mobile-overlay hidden></div>

@@ -1,10 +1,31 @@
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+
+  /* Settings-driven custom properties */
+  --content-width: 720px;
+  --font-family-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, Helvetica, Arial, sans-serif;
+  --font-family-serif: 'Noto Serif SC', 'Source Han Serif SC', Georgia, 'Times New Roman', serif;
+}
+
+/* ── Font Size ── */
+html[data-font-size='small']  { font-size: 0.875rem; }
+html[data-font-size='medium'] { font-size: 1rem; }
+html[data-font-size='large']  { font-size: 1.125rem; }
+
+/* ── Content Width ── */
+html[data-content-width='narrow'] { --content-width: 640px; }
+html[data-content-width='normal'] { --content-width: 720px; }
+html[data-content-width='wide']   { --content-width: 860px; }
+
+/* ── Font Family ── */
+html[data-font-family='sans']  { --font-family-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, Helvetica, Arial, sans-serif; }
+html[data-font-family='serif'] { --font-family-body: var(--font-family-serif); }
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-family-body);
   line-height: 1.8;
-  font-size: 1rem;
   color: #000;
   background: #fff;
 }
@@ -45,7 +66,7 @@ hr { border: none; border-top: 1px solid #ddd; margin: 2.5em 0; }
 
 /* ── Layout ── */
 .container {
-  max-width: 720px;
+  max-width: var(--content-width);
   margin: 0 auto;
   padding: 0 1.5rem;
 }
@@ -103,7 +124,6 @@ hr { border: none; border-top: 1px solid #ddd; margin: 2.5em 0; }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-  body { font-size: 0.95rem; }
   h1 { font-size: 1.6rem; }
   h2 { font-size: 1.2rem; }
   .container { padding: 0 1rem; }
@@ -113,3 +133,14 @@ hr { border: none; border-top: 1px solid #ddd; margin: 2.5em 0; }
 [data-theme='dark'] .hamburger span { background: #eee !important; }
 [data-theme='dark'] .site-header { border-color: #333 !important; }
 [data-theme='dark'] .site-footer { border-color: #333 !important; }
+
+/* ── Settings Panel (need to be global — data-theme is on <html>) ── */
+[data-theme='dark'] .settings-overlay { background: rgba(0,0,0,0.6); }
+[data-theme='dark'] .settings-drawer { background: #111; box-shadow: -2px 0 12px rgba(0,0,0,0.4); }
+[data-theme='dark'] .settings-drawer-header { border-color: #222; }
+[data-theme='dark'] .settings-drawer-close { color: #777; }
+[data-theme='dark'] .settings-drawer-close:hover { color: #fff; }
+[data-theme='dark'] .settings-label { color: #777; }
+[data-theme='dark'] .settings-option { border-color: #333; }
+[data-theme='dark'] .settings-option:has(input:checked) { border-color: #fff; background: #fff; color: #111; }
+[data-theme='dark'] .settings-option:hover:not(:has(input:checked)) { border-color: #fff; }

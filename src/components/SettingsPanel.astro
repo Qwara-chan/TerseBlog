@@ -1,0 +1,221 @@
+---
+// Settings panel — slide-out drawer with personalization controls
+// Gear button is in Header.astro; this component provides the overlay + drawer.
+// Settings stored in localStorage, applied via data-* attributes on <html>
+---
+
+<!-- Settings overlay + drawer -->
+<div class="settings-overlay" data-settings-overlay hidden></div>
+<div class="settings-drawer" data-settings-drawer>
+  <div class="settings-drawer-header">
+    <span class="settings-drawer-title">Settings</span>
+    <button class="settings-drawer-close" data-settings-close aria-label="Close settings">✕</button>
+  </div>
+
+  <div class="settings-body">
+    <!-- Font Size -->
+    <div class="settings-group">
+      <span class="settings-label">Font Size</span>
+      <div class="settings-options">
+        <label class="settings-option">
+          <input type="radio" name="font-size" value="small" data-setting="font-size" />
+          <span>Small</span>
+        </label>
+        <label class="settings-option">
+          <input type="radio" name="font-size" value="medium" data-setting="font-size" checked />
+          <span>Medium</span>
+        </label>
+        <label class="settings-option">
+          <input type="radio" name="font-size" value="large" data-setting="font-size" />
+          <span>Large</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Content Width -->
+    <div class="settings-group">
+      <span class="settings-label">Content Width</span>
+      <div class="settings-options">
+        <label class="settings-option">
+          <input type="radio" name="content-width" value="narrow" data-setting="content-width" />
+          <span>Narrow</span>
+        </label>
+        <label class="settings-option">
+          <input type="radio" name="content-width" value="normal" data-setting="content-width" checked />
+          <span>Normal</span>
+        </label>
+        <label class="settings-option">
+          <input type="radio" name="content-width" value="wide" data-setting="content-width" />
+          <span>Wide</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Font Family -->
+    <div class="settings-group">
+      <span class="settings-label">Font</span>
+      <div class="settings-options">
+        <label class="settings-option">
+          <input type="radio" name="font-family" value="sans" data-setting="font-family" checked />
+          <span>Sans</span>
+        </label>
+        <label class="settings-option">
+          <input type="radio" name="font-family" value="serif" data-setting="font-family" />
+          <span>Serif</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- TOC Visibility -->
+    <div class="settings-group">
+      <span class="settings-label">Table of Contents</span>
+      <div class="settings-options">
+        <label class="settings-option">
+          <input type="radio" name="toc-visible" value="true" data-setting="toc-visible" checked />
+          <span>Show</span>
+        </label>
+        <label class="settings-option">
+          <input type="radio" name="toc-visible" value="false" data-setting="toc-visible" />
+          <span>Hide</span>
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SETTINGS = ['font-size', 'content-width', 'font-family', 'toc-visible'];
+  const DEFAULTS: Record<string, string> = {
+    'font-size': 'medium',
+    'content-width': 'normal',
+    'font-family': 'sans',
+    'toc-visible': 'true',
+  };
+
+  // ── Read a setting ──
+  function getSetting(key: string): string {
+    return localStorage.getItem(`astro-blog-${key}`) || DEFAULTS[key] || '';
+  }
+
+  // ── Apply all settings to <html> ──
+  function applySettings() {
+    const html = document.documentElement;
+    for (const key of SETTINGS) {
+      const val = getSetting(key);
+      html.setAttribute(`data-${key}`, val);
+    }
+  }
+
+  // ── Init: sync radio buttons with current values ──
+  function syncRadios() {
+    for (const key of SETTINGS) {
+      const val = getSetting(key);
+      const radios = document.querySelectorAll<HTMLInputElement>(`input[name="${key}"]`);
+      radios.forEach(r => { r.checked = r.value === val; });
+    }
+  }
+
+  // ── Panel open/close ──
+  const overlay = document.querySelector('[data-settings-overlay]')!;
+  const drawer = document.querySelector('[data-settings-drawer]')!;
+
+  function openPanel() {
+    overlay.removeAttribute('hidden');
+    drawer.classList.add('open');
+    syncRadios();
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePanel() {
+    overlay.setAttribute('hidden', '');
+    drawer.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelector('[data-settings-toggle]')?.addEventListener('click', openPanel);
+  overlay?.addEventListener('click', closePanel);
+  document.querySelector('[data-settings-close]')?.addEventListener('click', closePanel);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && drawer.classList.contains('open')) closePanel();
+  });
+
+  // ── Handle setting changes ──
+  drawer.addEventListener('change', (e) => {
+    const input = e.target as HTMLInputElement;
+    if (!input.matches('[data-setting]')) return;
+    const key = input.name;
+    const val = input.value;
+    localStorage.setItem(`astro-blog-${key}`, val);
+    document.documentElement.setAttribute(`data-${key}`, val);
+
+    // TOC visibility also updates the legacy key for backward compat
+    if (key === 'toc-visible') {
+      localStorage.setItem('astro-blog-toc-visible', val);
+      document.documentElement.setAttribute('data-toc-visible', val);
+    }
+  });
+
+  // Apply on load
+  applySettings();
+</script>
+
+<style>
+  /* ── Overlay ── */
+  .settings-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 10000; opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .settings-overlay:not([hidden]) { opacity: 1; pointer-events: auto; }
+  .settings-overlay[hidden] { display: block; opacity: 0; pointer-events: none; }
+
+  /* ── Drawer ── */
+  .settings-drawer {
+    position: fixed; top: 0; right: 0; bottom: 0; width: 300px;
+    background: #fff; z-index: 10001;
+    transform: translateX(100%); transition: transform 0.3s ease;
+    padding: 1.5rem; display: flex; flex-direction: column; gap: 0;
+    box-shadow: -2px 0 12px rgba(0,0,0,0.08);
+    overflow-y: auto;
+  }
+  .settings-drawer.open { transform: translateX(0); }
+
+  .settings-drawer-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 0.75rem; margin-bottom: 1rem;
+    border-bottom: 1px solid #ddd;
+  }
+  .settings-drawer-title { font-weight: 600; font-size: 1rem; }
+  .settings-drawer-close {
+    font-size: 1.1rem; color: #999;
+    padding: 2px 6px;
+  }
+  .settings-drawer-close:hover { color: #000; }
+
+  /* ── Settings groups ── */
+  .settings-body { display: flex; flex-direction: column; gap: 1.25rem; }
+  .settings-group { display: flex; flex-direction: column; gap: 0.5rem; }
+  .settings-label {
+    font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #888;
+  }
+  .settings-options {
+    display: flex; gap: 0.35rem;
+  }
+  .settings-option {
+    display: flex; align-items: center; gap: 0.35rem;
+    padding: 0.4rem 0.75rem;
+    border: 1px solid #ddd;
+    font-size: 0.8rem; cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .settings-option:has(input:checked) {
+    border-color: #000; background: #000; color: #fff;
+  }
+  .settings-option:hover:not(:has(input:checked)) {
+    border-color: #000;
+  }
+  .settings-option input { display: none; }
+</style>

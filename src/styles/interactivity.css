@@ -1,6 +1,28 @@
 /* ── Sidebar TOC Visibility ── */
 html[data-toc-visible='false'] .sidebar-toc { display: none; }
 
+/* ── TOC on mobile/tablet: respect user setting ── */
+@media (max-width: 1024px) {
+  html[data-toc-visible='true'] .sidebar-toc {
+    display: block !important;
+    position: static;
+    width: 100%; max-height: none;
+    border-left: none;
+    border-top: 1px solid #eee;
+    padding: 1.5rem 0 0;
+    margin-top: 2rem;
+  }
+  [data-theme='dark'] html[data-toc-visible='true'] .sidebar-toc {
+    border-top-color: #222;
+  }
+}
+
+/* ── Content Width on small screens: adjust via padding ── */
+@media (max-width: 640px) {
+  html[data-content-width='narrow'] .container { padding-left: 2rem; padding-right: 2rem; }
+  html[data-content-width='wide']   .container { padding-left: 0.5rem; padding-right: 0.5rem; }
+}
+
 /* ── View Transitions ── */
 @view-transition { navigation: auto; }
 
