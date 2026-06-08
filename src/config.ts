@@ -1,7 +1,7 @@
 export const siteConfig = {
   title: 'TerseBlog',
   description: 'A minimalist blog in black & white',
-  site: 'https://example.com',
+  site: 'https://blog.qwara.top',
   language: 'zh-CN',
 
   author: {

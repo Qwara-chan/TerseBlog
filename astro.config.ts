@@ -9,7 +9,7 @@ import { rehypeExternalLinks } from './src/lib/rehype-external-links';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://example.com',
+  site: 'https://blog.qwara.top',
   base: '/',
   trailingSlash: 'never',
   output: 'static',

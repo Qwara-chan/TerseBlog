@@ -1,87 +1,73 @@
-# Astro 静态博客
+# TerseBlog
 
-基于 [Astro](https://astro.build) 构建的现代化静态博客系统，支持 Markdown 内容、LaTeX 数学公式、全文搜索、暗色模式、RSS 订阅等功能。
+A modern static blog built with [Astro](https://astro.build). Markdown content, LaTeX math, full-text search, dark mode, RSS, and a settings panel for personalized reading.
 
-## 功能特性
+🔗 **Live Demo**: [blog.qwara.top](https://blog.qwara.top)
 
-- 📝 **Markdown 内容** — 使用 Markdown 编写博客文章，支持 Frontmatter
-- 📐 **LaTeX 数学公式** — 集成 KaTeX，支持行内和展示数学公式
-- 🔍 **全文搜索** — 构建时生成搜索索引，客户端 Fuse.js 即时搜索
-- 🌓 **暗色模式** — 支持亮色/暗色/跟随系统三种模式
-- 📑 **目录导航** — 文章侧边目录（TOC），支持滚动高亮
-- ⏱ **阅读时长** — 自动计算中英文混合内容的阅读时间
-- 🏷 **标签系统** — 文章标签分类与标签云
-- 📡 **RSS 订阅** — 自动生成 RSS Feed
-- 🗺 **站点地图** — 自动生成 Sitemap
-- 📱 **响应式设计** — 适配桌面和移动设备
-- 🎨 **CSS 变量主题** — 轻松自定义颜色和样式
-- 🔄 **页面过渡动画** — 内置 View Transitions API
-- ⚙️ **设置面板** — 字体大小、TOC 显示等个性化设置
+---
 
-## 快速开始
+[中文版本](#中文)
 
-### 中国大陆用户请注意
+## Features
 
-由于网络环境，建议配置 npm 镜像：
+- 📝 **Markdown** — Write posts in Markdown with Frontmatter
+- 📐 **LaTeX Math** — KaTeX integration for inline and display math
+- 🔍 **Full-text Search** — Build-time search index, client-side Fuse.js instant search
+- 🌓 **Dark Mode** — Light / Dark / System three modes
+- ⚙️ **Settings Panel** — Font size, content width, font family, TOC visibility
+- 📑 **Table of Contents** — Sidebar TOC with scroll-spy highlighting
+- ⏱ **Reading Time** — Auto-estimate for mixed CJK + English content
+- 🏷 **Tag System** — Tag categorization and tag cloud
+- 📡 **RSS Feed** — Auto-generated RSS
+- 🗺 **Sitemap** — Auto-generated sitemap
+- 📱 **Responsive** — Desktop and mobile friendly
+- 🔄 **View Transitions** — Built-in page transition animations
 
-```bash
-# 使用淘宝镜像
-npm config set registry https://registry.npmmirror.com
-```
-
-### 安装与运行
+## Quick Start
 
 ```bash
-# 1. 克隆项目
-git clone <your-repo-url>
-cd astro-blog
+# 1. Clone
+git clone https://github.com/Qwara-chan/TerseBlog.git
+cd TerseBlog
 
-# 2. 安装依赖
+# 2. Install
 npm install
 
-# 3. 启动开发服务器
+# 3. Dev server
 npm run dev
 
-# 4. 构建静态文件
+# 4. Build
 npm run build
 
-# 5. 预览构建结果
+# 5. Preview build
 npm run preview
 ```
 
-## 项目结构
+## Project Structure
 
 ```
-astro-blog/
-├── astro.config.ts          # Astro 配置
-├── tsconfig.json            # TypeScript 配置
-├── package.json             # 依赖管理
-├── .gitignore               # Git 忽略规则
-├── README.md                # 项目说明
-├── docs/
-│   └── configuration.md     # 配置指南
-├── .github/workflows/
-│   └── deploy.yml           # GitHub Actions 部署
-├── public/                  # 静态资源
+TerseBlog/
+├── astro.config.ts
+├── tsconfig.json
+├── package.json
 ├── src/
-│   ├── config.ts            # 统一配置
-│   ├── layouts/             # 页面布局
-│   │   └── BaseLayout.astro
-│   ├── components/          # UI 组件
+│   ├── config.ts              # Site configuration
+│   ├── layouts/
+│   │   └── BaseLayout.astro   # Base layout
+│   ├── components/
 │   │   ├── Header.astro
 │   │   ├── Footer.astro
 │   │   ├── PostCard.astro
 │   │   ├── Pagination.astro
 │   │   ├── TOC.astro
 │   │   ├── Search.astro
-│   │   ├── ThemeToggle.astro
 │   │   ├── SettingsPanel.astro
 │   │   ├── BackToTop.astro
 │   │   ├── MobileMenu.astro
 │   │   ├── SortToggle.astro
 │   │   ├── DiffViewer.astro
 │   │   └── ExternalLink.astro
-│   ├── pages/               # 页面路由
+│   ├── pages/
 │   │   ├── index.astro
 │   │   ├── posts/[...slug].astro
 │   │   ├── tags/index.astro
@@ -91,43 +77,105 @@ astro-blog/
 │   │   ├── 404.astro
 │   │   ├── search-index.json.ts
 │   │   └── rss.xml.ts
-│   ├── lib/                 # 工具库
+│   ├── lib/
 │   │   ├── content.ts
 │   │   ├── utils.ts
 │   │   ├── search.ts
-│   │   ├── theme.ts
-│   │   ├── transitions.ts
-│   │   └── rehype-*.ts
-│   ├── styles/              # 样式
+│   │   └── types.ts
+│   ├── styles/
 │   │   ├── global.css
 │   │   └── interactivity.css
-│   └── content/posts/       # 博客文章
-│       ├── hello-world.md
-│       └── markdown-guide.md
+│   └── posts/                 # Blog posts (Markdown)
+└── public/                    # Static assets
 ```
 
-## 部署
+## Deployment
 
 ### Cloudflare Pages
 
-1. 在 [Cloudflare Dashboard](https://dash.cloudflare.com) 中进入 **Pages**
-2. 点击 **Create a project** → **Connect to Git**
-3. 选择你的仓库，配置构建设置：
+1. Go to **Pages** in [Cloudflare Dashboard](https://dash.cloudflare.com)
+2. **Create a project** → **Connect to Git**
+3. Configure build settings:
    - **Build command**: `npm run build`
    - **Build output directory**: `dist`
-4. 点击 **Save and Deploy**
-
-> 注意：中国大陆访问 Cloudflare 可能需要调整 DNS 设置。
+4. **Save and Deploy**
 
 ### GitHub Pages
 
-1. 在 GitHub 仓库中进入 **Settings** → **Pages**
-2. 选择 **GitHub Actions** 作为 Source
-3. 推送代码到 `main` 分支，GitHub Actions 会自动构建并部署
+1. Go to **Settings** → **Pages** in your repo
+2. Select **GitHub Actions** as the Source
+3. Push to `main` — GitHub Actions builds and deploys automatically
 
-也可以使用 `.github/workflows/deploy.yml` 中预配置的 workflow。
+A pre-configured workflow is available at `.github/workflows/deploy.yml`.
 
-## 技术栈
+## Tech Stack
+
+| Technology | Purpose |
+|---|---|
+| [Astro 5](https://astro.build) | Static site generator |
+| [TypeScript](https://www.typescriptlang.org) | Type safety |
+| [KaTeX](https://katex.org) | LaTeX math rendering |
+| [Fuse.js](https://fusejs.io) | Fuzzy search |
+| [rehype-katex](https://github.com/remarkjs/remark-math) | Markdown math |
+| [@astrojs/sitemap](https://docs.astro.build/en/guides/integrations-guide/sitemap) | Sitemap |
+| [@astrojs/rss](https://docs.astro.build/en/guides/rss) | RSS feed |
+
+## License
+
+[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+
+---
+
+<h2 id="中文">中文</h2>
+
+## TerseBlog
+
+基于 [Astro](https://astro.build) 构建的现代化静态博客，支持 Markdown、LaTeX 数学公式、全文搜索、暗色模式、RSS 订阅，内置设置面板可个性化调整字体大小、内容宽度等。
+
+🔗 **示例站点**: [blog.qwara.top](https://blog.qwara.top)
+
+### 功能特性
+
+- 📝 **Markdown** — Markdown 编写文章，支持 Frontmatter
+- 📐 **LaTeX 数学公式** — KaTeX 集成，行内和展示公式
+- 🔍 **全文搜索** — 构建时生成索引，Fuse.js 客户端即时搜索
+- 🌓 **暗色模式** — 亮色/暗色/跟随系统三种模式
+- ⚙️ **设置面板** — 字体大小、内容宽度、字体切换、TOC 显隐
+- 📑 **目录导航** — 侧边目录，滚动高亮
+- ⏱ **阅读时长** — 中英文混合内容自动估算
+- 🏷 **标签系统** — 文章标签分类与标签云
+- 📡 **RSS 订阅** — 自动生成 RSS Feed
+- 📱 **响应式设计** — 适配桌面和移动端
+- 🔄 **页面过渡动画** — 内置 View Transitions API
+
+### 快速开始
+
+```bash
+# 中国大陆用户可先配置 npm 镜像
+npm config set registry https://registry.npmmirror.com
+
+# 1. 克隆
+git clone https://github.com/Qwara-chan/TerseBlog.git
+cd TerseBlog
+
+# 2. 安装依赖
+npm install
+
+# 3. 启动开发服务器
+npm run dev
+
+# 4. 构建
+npm run build
+
+# 5. 预览构建结果
+npm run preview
+```
+
+### 部署
+
+详见上方 [Deployment](#deployment) 章节。
+
+### 技术栈
 
 | 技术 | 用途 |
 |------|------|
@@ -135,10 +183,9 @@ astro-blog/
 | [TypeScript](https://www.typescriptlang.org) | 类型安全 |
 | [KaTeX](https://katex.org) | LaTeX 数学公式渲染 |
 | [Fuse.js](https://fusejs.io) | 模糊搜索 |
-| [rehype-katex](https://github.com/remarkjs/remark-math) | Markdown 数学公式 |
 | [@astrojs/sitemap](https://docs.astro.build/en/guides/integrations-guide/sitemap) | 站点地图 |
 | [@astrojs/rss](https://docs.astro.build/en/guides/rss) | RSS 订阅 |
 
-## 许可证
+### 许可证
 
-本项目采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 许可证。
+[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
