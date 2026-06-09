@@ -54,7 +54,7 @@ const { headings, maxDepth = 3 } = Astro.props;
     width: 220px; padding-left: 1.5rem;
     border-left: 1px solid #eee;
   }
-  [data-theme='dark'] .sidebar-toc { border-color: #222; }
+  :global([data-theme='dark']) .sidebar-toc { border-color: #222; }
   .toc-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
   .toc-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
   .toc-list { list-style: none; }
@@ -65,11 +65,11 @@ const { headings, maxDepth = 3 } = Astro.props;
     border-left: 1px solid transparent; padding-left: 0.5rem;
     transition: all 0.15s;
   }
-  [data-theme='dark'] .toc-link { color: #777; }
+  :global([data-theme='dark']) .toc-link { color: #777; }
   .toc-link:hover { color: #000; }
-  [data-theme='dark'] .toc-link:hover { color: #fff; }
+  :global([data-theme='dark']) .toc-link:hover { color: #fff; }
   .toc-link.active { color: #000; border-left-color: #000; }
-  [data-theme='dark'] .toc-link.active { color: #fff; border-left-color: #fff; }
+  :global([data-theme='dark']) .toc-link.active { color: #fff; border-left-color: #fff; }
   .l3 .toc-link { font-size: 0.75rem; }
   @media (max-width: 1024px) { .sidebar-toc { display: none; } }
 </style>
