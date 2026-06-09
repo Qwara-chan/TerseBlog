@@ -122,6 +122,12 @@ hr { border: none; border-top: 1px solid #ddd; margin: 2.5em 0; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
 .text-center { text-align: center; }
 
+/* ── KaTeX auto-scroll on mobile ── */
+.katex-display { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; max-width: 100%; }
+.katex-display::-webkit-scrollbar { height: 4px; }
+.katex-display::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
+[data-theme='dark'] .katex-display::-webkit-scrollbar-thumb { background: #444; }
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   h1 { font-size: 1.6rem; }
@@ -144,3 +150,12 @@ hr { border: none; border-top: 1px solid #ddd; margin: 2.5em 0; }
 [data-theme='dark'] .settings-option { border-color: #333; }
 [data-theme='dark'] .settings-option:has(input:checked) { border-color: #fff; background: #fff; color: #111; }
 [data-theme='dark'] .settings-option:hover:not(:has(input:checked)) { border-color: #fff; }
+
+/* ── Shiki code blocks (dual theme) ── */
+[data-theme='dark'] .astro-code {
+  background-color: var(--shiki-dark-bg) !important;
+  color: var(--shiki-dark) !important;
+}
+[data-theme='dark'] .astro-code span {
+  color: var(--shiki-dark) !important;
+}

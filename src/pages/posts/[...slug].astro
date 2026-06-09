@@ -66,10 +66,13 @@ const readingTime = estimateReadingTime(post.content);
   [data-theme='dark'] .dot { color: #333; }
   .post-nav { display: flex; justify-content: space-between; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #ddd; gap: 1rem; }
   [data-theme='dark'] .post-nav { border-color: #222; }
-  .nav-card { flex: 1; padding: 0.75rem 0; }
+  .nav-card { flex: 1; display: flex; flex-direction: column; gap: 0.25rem; padding: 1rem 1.25rem; border: 1px solid #ddd; transition: border-color 0.2s; }
   .nav-card.next { text-align: right; }
-  .nav-label { font-size: 0.8rem; color: #bbb; }
-  .nav-title { font-weight: 500; font-size: 0.9rem; }
+  [data-theme='dark'] .nav-card { border-color: #333; }
+  .nav-card:hover { border-color: #000; }
+  [data-theme='dark'] .nav-card:hover { border-color: #fff; }
+  .nav-label { font-size: 0.75rem; color: #999; letter-spacing: 0.03em; }
+  .nav-title { font-weight: 600; font-size: 0.9rem; }
   .nav-card:hover .nav-title { text-decoration: underline; }
-  @media (max-width: 1024px) { .post-layout { flex-direction: column; } .post-title { font-size: 1.4rem; } .post-nav { flex-direction: column; } .nav-card.next { text-align: left; } }
+  @media (max-width: 1024px) { .post-layout { flex-direction: column; } .post-title { font-size: 1.4rem; } .post-nav { flex-direction: column; } }
 </style>
