@@ -19,6 +19,6 @@
     opacity: 0; transform: translateY(12px); pointer-events: none;
     transition: all 0.25s; z-index: 50;
   }
-  [data-theme='dark'] .back-to-top { background: #fff; color: #111; }
+  :global([data-theme='dark']) .back-to-top { background: #fff; color: #111; }
   .back-to-top.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
 </style>

@@ -30,13 +30,13 @@ const showUpdated = updated && new Date(updated).getTime() - new Date(date).getT
     padding: 1.5rem 0;
     border-bottom: 1px solid #eee;
   }
-  [data-theme='dark'] .post-card { border-color: #222; }
+  :global([data-theme='dark']) .post-card { border-color: #222; }
   .post-card:last-child { border-bottom: none; }
   .post-title { font-size: 1.2rem; margin: 0 0 0.4rem; }
   .post-desc { color: #666; font-size: 0.9rem; line-height: 1.7; margin-bottom: 0.5rem; }
-  [data-theme='dark'] .post-desc { color: #999; }
+  :global([data-theme='dark']) .post-desc { color: #999; }
   .post-meta { font-size: 0.8rem; color: #999; display: flex; align-items: center; gap: 0.3rem; margin-bottom: 0.4rem; }
-  [data-theme='dark'] .post-meta { color: #777; }
+  :global([data-theme='dark']) .post-meta { color: #777; }
   .dot { color: #ddd; }
   .updated { font-style: italic; }
   .post-tags { display: flex; flex-wrap: wrap; gap: 0.15rem; }

@@ -58,7 +58,7 @@ const pageDescription = description || siteConfig.description;
       z-index: 9998; opacity: 0; pointer-events: none;
       transition: opacity 0.3s;
     }
-    [data-theme='dark'] .mobile-overlay { background: rgba(0,0,0,0.7); }
+    :global([data-theme='dark']) .mobile-overlay { background: rgba(0,0,0,0.7); }
     .mobile-overlay:not([hidden]) { opacity: 1; pointer-events: auto; }
     .mobile-overlay[hidden] { display: block; opacity: 0; pointer-events: none; }
 
@@ -70,29 +70,29 @@ const pageDescription = description || siteConfig.description;
       box-shadow: 2px 0 12px rgba(0,0,0,0.08);
       overflow-y: auto;
     }
-    [data-theme='dark'] .mobile-drawer { background: #111; box-shadow: 2px 0 12px rgba(0,0,0,0.4); }
+    :global([data-theme='dark']) .mobile-drawer { background: #111; box-shadow: 2px 0 12px rgba(0,0,0,0.4); }
     .mobile-drawer.open { transform: translateX(0); }
     .mobile-drawer-header {
       display: flex; justify-content: space-between; align-items: center;
       padding-bottom: 0.75rem; margin-bottom: 0.5rem;
       border-bottom: 1px solid #ddd;
     }
-    [data-theme='dark'] .mobile-drawer-header { border-color: #222; }
+    :global([data-theme='dark']) .mobile-drawer-header { border-color: #222; }
     .mobile-drawer-title { font-weight: 600; font-size: 1rem; }
     .mobile-drawer-close {
       font-size: 1.1rem; color: #999;
       padding: 2px 6px;
     }
     .mobile-drawer-close:hover { color: #000; }
-    [data-theme='dark'] .mobile-drawer-close { color: #777; }
-    [data-theme='dark'] .mobile-drawer-close:hover { color: #fff; }
+    :global([data-theme='dark']) .mobile-drawer-close { color: #777; }
+    :global([data-theme='dark']) .mobile-drawer-close:hover { color: #fff; }
     .mobile-link {
       display: block; padding: 0.6rem 0.5rem;
       color: #000; font-size: 1rem;
     }
-    [data-theme='dark'] .mobile-link { color: #eee; }
+    :global([data-theme='dark']) .mobile-link { color: #eee; }
     .mobile-link:hover { background: #f5f5f5; }
-    [data-theme='dark'] .mobile-link:hover { background: #1a1a1a; }
+    :global([data-theme='dark']) .mobile-link:hover { background: #1a1a1a; }
   </style>
 
   <script is:inline>

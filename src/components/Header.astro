@@ -70,7 +70,7 @@ const { menuItems } = Astro.props;
     border-bottom: 1px solid #ddd;
     height: 56px;
   }
-  [data-theme='dark'] .site-header { border-color: #333; }
+  :global([data-theme='dark']) .site-header { border-color: #333; }
   .header-inner {
     display: flex; align-items: center; justify-content: space-between;
     height: 100%;
@@ -78,25 +78,25 @@ const { menuItems } = Astro.props;
   .site-logo { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em; }
   .desktop-nav { display: flex; gap: 1.5rem; }
   .nav-link { font-size: 0.85rem; color: #666; transition: color 0.2s; }
-  [data-theme='dark'] .nav-link { color: #999; }
+  :global([data-theme='dark']) .nav-link { color: #999; }
   .nav-link:hover { color: #000; }
-  [data-theme='dark'] .nav-link:hover { color: #fff; }
+  :global([data-theme='dark']) .nav-link:hover { color: #fff; }
   .header-actions { display: flex; align-items: center; gap: 0.25rem; }
   .icon-btn {
     display: flex; align-items: center; justify-content: center;
     width: 34px; height: 34px; color: #666; transition: color 0.2s;
   }
-  [data-theme='dark'] .icon-btn { color: #999; }
+  :global([data-theme='dark']) .icon-btn { color: #999; }
   .icon-btn:hover { color: #000; }
-  [data-theme='dark'] .icon-btn:hover { color: #fff; }
+  :global([data-theme='dark']) .icon-btn:hover { color: #fff; }
 
   /* Theme icon visibility */
-  html[data-theme-mode='light'] .moon-icon,
-  html[data-theme-mode='light'] .system-icon { display: none; }
-  html[data-theme-mode='dark'] .sun-icon,
-  html[data-theme-mode='dark'] .system-icon { display: none; }
-  html[data-theme-mode='system'] .sun-icon,
-  html[data-theme-mode='system'] .moon-icon { display: none; }
+  :global(html[data-theme-mode='light']) .moon-icon,
+  :global(html[data-theme-mode='light']) .system-icon { display: none; }
+  :global(html[data-theme-mode='dark']) .sun-icon,
+  :global(html[data-theme-mode='dark']) .system-icon { display: none; }
+  :global(html[data-theme-mode='system']) .sun-icon,
+  :global(html[data-theme-mode='system']) .moon-icon { display: none; }
 
   @media (max-width: 768px) {
     .desktop-nav { display: none; }

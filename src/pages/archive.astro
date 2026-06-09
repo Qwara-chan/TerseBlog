@@ -43,7 +43,7 @@ const grouped = groupPostsByYear(allPosts);
     display: flex; align-items: baseline; gap: 1rem;
     padding: 0.4rem 0; border-bottom: 1px solid #eee;
   }
-  [data-theme='dark'] .archive-item { border-color: #1a1a1a; }
+  :global([data-theme='dark']) .archive-item { border-color: #1a1a1a; }
   .archive-date { flex-shrink: 0; width: 110px; font-size: 0.8rem; color: #999; }
   .archive-title { font-size: 0.9rem; transition: color 0.2s; }
   .archive-title:hover { text-decoration: underline; }

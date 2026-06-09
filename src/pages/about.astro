@@ -27,11 +27,11 @@ import { siteConfig } from '@/config';
   .about-section { margin-bottom: 2.5rem; }
   .about-section h2 { font-size: 1.1rem; margin-bottom: 0.5rem; font-weight: 600; }
   .bio { color: #666; font-size: 0.95rem; }
-  [data-theme='dark'] .bio { color: #999; }
+  :global([data-theme='dark']) .bio { color: #999; }
   .social { display: flex; gap: 1rem; margin-top: 0.75rem; }
   .social a { font-size: 0.85rem; color: #666; }
-  [data-theme='dark'] .social a { color: #999; }
+  :global([data-theme='dark']) .social a { color: #999; }
   .social a:hover { color: #000; text-decoration: underline; }
-  [data-theme='dark'] .social a:hover { color: #fff; }
+  :global([data-theme='dark']) .social a:hover { color: #fff; }
   .about-section a { text-decoration: underline; }
 </style>

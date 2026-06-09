@@ -32,7 +32,7 @@ const { current } = Astro.props;
 
 <style>
   .sort-toggle { font-size: 0.8rem; color: #888; cursor: pointer; border: 1px solid #ddd; padding: 0.3em 0.8em; transition: all 0.2s; }
-  [data-theme='dark'] .sort-toggle { border-color: #333; color: #999; }
+  :global([data-theme='dark']) .sort-toggle { border-color: #333; color: #999; }
   .sort-toggle:hover { border-color: #000; color: #000; }
-  [data-theme='dark'] .sort-toggle:hover { border-color: #fff; color: #fff; }
+  :global([data-theme='dark']) .sort-toggle:hover { border-color: #fff; color: #fff; }
 </style>

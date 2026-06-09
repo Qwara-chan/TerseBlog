@@ -3,7 +3,13 @@ import { siteConfig } from '@/config';
 
 export const GET = async () => {
   const postModules = import.meta.glob('../posts/*.md', { eager: true });
+  const isProd = import.meta.env.PROD;
+
   const posts = Object.entries(postModules)
+    .filter(([, mod]) => {
+      const fm = (mod as any).frontmatter || mod;
+      return !(isProd && fm.draft);
+    })
     .map(([path, mod]) => {
       const slug = path.split('/').pop()?.replace(/\.(md|mdx)$/, '') || '';
       const fm = (mod as any).frontmatter || mod;
@@ -14,7 +20,6 @@ export const GET = async () => {
         link: `/posts/${slug}`,
       };
     })
-    .filter((p) => !p.title.startsWith('draft-'))
     .sort((a, b) => b.pubDate.getTime() - a.pubDate.getTime());
 
   return rss({

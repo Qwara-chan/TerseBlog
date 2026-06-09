@@ -24,8 +24,8 @@ const maxCount = Math.max(...tags.map(t => t.count), 1);
   .page-title { font-size: 1.8rem; margin: 2rem 0 1.5rem; }
   .tag-cloud { display: flex; flex-wrap: wrap; gap: 0.5rem 0.75rem; padding: 1.5rem 0; }
   .tag-item { font-size: calc(var(--scale, 1) * 0.9rem); color: #666; border: 1px solid #ddd; padding: 0.2em 0.8em; transition: all 0.2s; }
-  [data-theme='dark'] .tag-item { color: #999; border-color: #333; }
+  :global([data-theme='dark']) .tag-item { color: #999; border-color: #333; }
   .tag-item:hover { border-color: #000; color: #000; }
-  [data-theme='dark'] .tag-item:hover { border-color: #fff; color: #fff; }
+  :global([data-theme='dark']) .tag-item:hover { border-color: #fff; color: #fff; }
   .tag-count { font-size: 0.75em; color: #bbb; margin-left: 0.3em; }
 </style>

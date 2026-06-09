@@ -135,10 +135,7 @@ hr { border: none; border-top: 1px solid #ddd; margin: 2.5em 0; }
   .container { padding: 0 1rem; }
 }
 
-/* ── Dark mode overrides for components (Astro scoping workaround) ── */
-[data-theme='dark'] .hamburger span { background: #eee !important; }
-[data-theme='dark'] .site-header { border-color: #333 !important; }
-[data-theme='dark'] .site-footer { border-color: #333 !important; }
+/* ── Dark mode overrides for Settings Panel and Shiki ── */
 
 /* ── Settings Panel (need to be global — data-theme is on <html>) ── */
 [data-theme='dark'] .settings-overlay { background: rgba(0,0,0,0.6); }

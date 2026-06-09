@@ -6,10 +6,11 @@ import rehypeKatex from 'rehype-katex';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import { rehypeExternalLinks } from './src/lib/rehype-external-links';
+import { siteConfig } from './src/config';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://blog.qwara.top',
+  site: siteConfig.site,
   base: '/',
   trailingSlash: 'never',
   output: 'static',
@@ -37,7 +38,7 @@ export default defineConfig({
         },
       }],
       [rehypeExternalLinks, {
-        internalDomain: 'example.com',
+        internalDomain: new URL(siteConfig.site).hostname,
         addIcon: true,
       }],
     ],

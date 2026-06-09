@@ -29,7 +29,7 @@ const hasUpdate = updatedDate && updatedDate !== originalDate;
 
 <style>
   .diff-viewer { font-size: 0.85rem; color: #888; margin: 1.5rem 0; padding: 0.75rem 0; border-bottom: 1px solid #eee; }
-  [data-theme='dark'] .diff-viewer { border-color: #222; }
+  :global([data-theme='dark']) .diff-viewer { border-color: #222; }
   .diff-text { margin: 0; }
   .diff-toggle { text-decoration: underline; cursor: pointer; color: inherit; margin-left: 0.3em; }
   .diff-details { margin-top: 0.5rem; color: #bbb; font-size: 0.8rem; }

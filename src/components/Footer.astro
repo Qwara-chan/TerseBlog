@@ -28,13 +28,13 @@ const year = new Date().getFullYear();
     border-top: 1px solid #ddd;
     margin-top: 4rem; padding: 2rem 0;
   }
-  [data-theme='dark'] .site-footer { border-color: #333; }
+  :global([data-theme='dark']) .site-footer { border-color: #333; }
   .footer-inner {
     display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
     text-align: center; font-size: 0.8rem; color: #888;
   }
-  [data-theme='dark'] .footer-inner { color: #777; }
+  :global([data-theme='dark']) .footer-inner { color: #777; }
   .footer-links { display: flex; gap: 1rem; }
   .footer-links a:hover { color: #000; }
-  [data-theme='dark'] .footer-links a:hover { color: #fff; }
+  :global([data-theme='dark']) .footer-links a:hover { color: #fff; }
 </style>

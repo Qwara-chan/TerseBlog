@@ -8,18 +8,18 @@ const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
 <nav class="pagination" aria-label="Pagination">
   {currentPage > 1 && (
-    <a href={currentPage === 2 ? basePath : `${basePath}/page/${currentPage - 1}`} class="page-btn">← Prev</a>
+    <a href={currentPage === 2 ? basePath : `${basePath}?page=${currentPage - 1}`} class="page-btn">← Prev</a>
   )}
   <div class="page-nums">
     {pages.map((p) => {
-      const href = p === 1 ? basePath : `${basePath}/page/${p}`;
+      const href = p === 1 ? basePath : `${basePath}?page=${p}`;
       return p === currentPage
         ? <span class="page-num current">{p}</span>
         : <a href={href} class="page-num">{p}</a>;
     })}
   </div>
   {currentPage < totalPages && (
-    <a href={`${basePath}/page/${currentPage + 1}`} class="page-btn">Next →</a>
+    <a href={`${basePath}?page=${currentPage + 1}`} class="page-btn">Next →</a>
   )}
 </nav>
 
@@ -31,13 +31,13 @@ const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
     width: 34px; height: 34px; font-size: 0.85rem; color: #666;
     border: 1px solid transparent; transition: all 0.2s;
   }
-  [data-theme='dark'] .page-num { color: #999; }
+  :global([data-theme='dark']) .page-num { color: #999; }
   .page-num:hover { border-color: #ddd; }
-  [data-theme='dark'] .page-num:hover { border-color: #444; }
+  :global([data-theme='dark']) .page-num:hover { border-color: #444; }
   .page-num.current { border-color: #000; color: #000; }
-  [data-theme='dark'] .page-num.current { border-color: #fff; color: #fff; }
+  :global([data-theme='dark']) .page-num.current { border-color: #fff; color: #fff; }
   .page-btn { font-size: 0.85rem; color: #666; }
-  [data-theme='dark'] .page-btn { color: #999; }
+  :global([data-theme='dark']) .page-btn { color: #999; }
   .page-btn:hover { color: #000; }
-  [data-theme='dark'] .page-btn:hover { color: #fff; }
+  :global([data-theme='dark']) .page-btn:hover { color: #fff; }
 </style>

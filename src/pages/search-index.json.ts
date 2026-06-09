@@ -25,11 +25,14 @@ export const GET: APIRoute = async () => {
   const modules = import.meta.glob('../posts/*.md', { eager: true });
   const posts: SearchDoc[] = [];
 
+  const isProd = import.meta.env.PROD;
+
   for (const [path, mod] of Object.entries(modules)) {
     const slug = path.split('/').pop()?.replace(/\.(md|mdx)$/, '') || '';
     if (!slug) continue;
     const m = mod as Record<string, any>;
     const fm = m.frontmatter || {};
+    if (isProd && fm.draft) continue;
     const raw = typeof m.rawContent === 'function' ? m.rawContent() : '';
 
     posts.push({
