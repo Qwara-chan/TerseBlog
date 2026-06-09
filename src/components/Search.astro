@@ -65,28 +65,29 @@
 
 <style>
   .search-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9000; display: flex; justify-content: center; padding-top: 12vh; }
-  [data-theme='dark'] .search-overlay { background: rgba(0,0,0,0.7); }
+  :global([data-theme='dark']) .search-overlay { background: rgba(0,0,0,0.7); }
   .search-overlay[hidden] { display: none; }
   .search-modal { width: min(560px, 90vw); background: #fff; }
-  [data-theme='dark'] .search-modal { background: #1a1a1a; }
+  :global([data-theme='dark']) .search-modal { background: #1a1a1a; }
   .search-header { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; border-bottom: 1px solid #ddd; color: #999; }
-  [data-theme='dark'] .search-header { border-color: #333; }
+  :global([data-theme='dark']) .search-header { border-color: #333; }
   .search-input { flex: 1; border: none; background: transparent; color: #000; font-size: 1.05rem; outline: none; }
-  [data-theme='dark'] .search-input { color: #eee; }
+  :global([data-theme='dark']) .search-input { color: #eee; }
   .search-close { color: #999; }
   .search-close:hover { color: #000; }
-  [data-theme='dark'] .search-close:hover { color: #fff; }
+  :global([data-theme='dark']) .search-close:hover { color: #fff; }
   .search-hints { display: flex; gap: 1rem; padding: 0.4rem 1rem; font-size: 0.7rem; color: #bbb; border-bottom: 1px solid #ddd; }
-  [data-theme='dark'] .search-hints { border-color: #333; }
+  :global([data-theme='dark']) .search-hints { border-color: #333; }
   .search-results { max-height: 50vh; overflow-y: auto; }
   .search-empty { padding: 2rem; text-align: center; color: #bbb; }
   .result-item { display: block; padding: 0.75rem 1rem; border-bottom: 1px solid #eee; transition: background 0.15s; }
-  [data-theme='dark'] .result-item { border-color: #222; }
+  :global([data-theme='dark']) .result-item { border-color: #222; }
   .result-item:hover, .result-item.selected { background: #f5f5f5; }
-  [data-theme='dark'] .result-item:hover, [data-theme='dark'] .result-item.selected { background: #222; }
+  :global([data-theme='dark']) .result-item:hover { background: #222; }
+  :global([data-theme='dark']) .result-item.selected { background: #222; }
   .result-title { font-weight: 600; color: #000; margin-bottom: 0.15rem; font-size: 0.9rem; }
-  [data-theme='dark'] .result-title { color: #eee; }
+  :global([data-theme='dark']) .result-title { color: #eee; }
   .result-desc { font-size: 0.8rem; color: #888; }
   mark { background: #000; color: #fff; padding: 0.05em 0.2em; }
-  [data-theme='dark'] mark { background: #fff; color: #111; }
+  :global([data-theme='dark']) mark { background: #fff; color: #111; }
 </style>
