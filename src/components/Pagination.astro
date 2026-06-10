@@ -29,15 +29,15 @@ const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
   .page-num {
     display: flex; align-items: center; justify-content: center;
     width: 34px; height: 34px; font-size: 0.85rem; color: #666;
-    border: 1px solid transparent; transition: all 0.2s;
+    border: 1px solid transparent; transition: all 0.3s var(--ease-spring);
   }
   :global([data-theme='dark']) .page-num { color: #999; }
-  .page-num:hover { border-color: #ddd; }
+  .page-num:hover { border-color: #ddd; transform: translateY(-1px); }
   :global([data-theme='dark']) .page-num:hover { border-color: #444; }
   .page-num.current { border-color: #000; color: #000; }
   :global([data-theme='dark']) .page-num.current { border-color: #fff; color: #fff; }
-  .page-btn { font-size: 0.85rem; color: #666; }
+  .page-btn { font-size: 0.85rem; color: #666; transition: color 0.25s var(--ease-out-expo), transform 0.25s var(--ease-spring); }
   :global([data-theme='dark']) .page-btn { color: #999; }
-  .page-btn:hover { color: #000; }
+  .page-btn:hover { color: #000; transform: translateX(2px); }
   :global([data-theme='dark']) .page-btn:hover { color: #fff; }
 </style>

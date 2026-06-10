@@ -23,9 +23,9 @@ const maxCount = Math.max(...tags.map(t => t.count), 1);
 <style>
   .page-title { font-size: 1.8rem; margin: 2rem 0 1.5rem; }
   .tag-cloud { display: flex; flex-wrap: wrap; gap: 0.5rem 0.75rem; padding: 1.5rem 0; }
-  .tag-item { font-size: calc(var(--scale, 1) * 0.9rem); color: #666; border: 1px solid #ddd; padding: 0.2em 0.8em; transition: all 0.2s; }
+  .tag-item { font-size: calc(var(--scale, 1) * 0.9rem); color: #666; border: 1px solid #ddd; padding: 0.2em 0.8em; transition: border-color 0.3s var(--ease-out-expo), color 0.3s var(--ease-out-expo), transform 0.3s var(--ease-spring); }
   :global([data-theme='dark']) .tag-item { color: #999; border-color: #333; }
-  .tag-item:hover { border-color: #000; color: #000; }
-  :global([data-theme='dark']) .tag-item:hover { border-color: #fff; color: #fff; }
+  .tag-item:hover { border-color: #000; color: #000; transform: translateY(-1px); }
+  :global([data-theme='dark']) .tag-item:hover { border-color: #fff; color: #fff; transform: translateY(-1px); }
   .tag-count { font-size: 0.75em; color: #bbb; margin-left: 0.3em; }
 </style>

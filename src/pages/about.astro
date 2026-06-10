@@ -29,9 +29,19 @@ import { siteConfig } from '@/config';
   .bio { color: #666; font-size: 0.95rem; }
   :global([data-theme='dark']) .bio { color: #999; }
   .social { display: flex; gap: 1rem; margin-top: 0.75rem; }
-  .social a { font-size: 0.85rem; color: #666; }
+  .social a { font-size: 0.85rem; color: #666; transition: color 0.25s var(--ease-out-expo); position: relative; }
   :global([data-theme='dark']) .social a { color: #999; }
-  .social a:hover { color: #000; text-decoration: underline; }
+  .social a::after {
+    content: '';
+    position: absolute; bottom: -2px; left: 0;
+    width: 100%; height: 1px;
+    background: #000;
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.3s var(--ease-spring);
+  }
+  :global([data-theme='dark']) .social a::after { background: #fff; }
+  .social a:hover { color: #000; }
   :global([data-theme='dark']) .social a:hover { color: #fff; }
+  .social a:hover::after { transform: scaleX(1); }
   .about-section a { text-decoration: underline; }
 </style>

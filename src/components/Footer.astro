@@ -35,6 +35,25 @@ const year = new Date().getFullYear();
   }
   :global([data-theme='dark']) .footer-inner { color: #777; }
   .footer-links { display: flex; gap: 1rem; }
+  .footer-links a {
+    position: relative;
+    transition: color 0.25s var(--ease-out-expo);
+  }
+  .footer-links a::after {
+    content: '';
+    position: absolute; bottom: -2px; left: 0;
+    width: 100%; height: 1px;
+    background: #000;
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.3s var(--ease-spring);
+  }
+  :global([data-theme='dark']) .footer-links a::after { background: #fff; }
   .footer-links a:hover { color: #000; }
   :global([data-theme='dark']) .footer-links a:hover { color: #fff; }
+  .footer-links a:hover::after { transform: scaleX(1); }
+  .copyright a {
+    transition: color 0.25s var(--ease-out-expo);
+  }
+  .copyright a:hover { color: #000; }
+  :global([data-theme='dark']) .copyright a:hover { color: #fff; }
 </style>

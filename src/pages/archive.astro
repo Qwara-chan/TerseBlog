@@ -45,8 +45,8 @@ const grouped = groupPostsByYear(allPosts);
   }
   :global([data-theme='dark']) .archive-item { border-color: #1a1a1a; }
   .archive-date { flex-shrink: 0; width: 110px; font-size: 0.8rem; color: #999; }
-  .archive-title { font-size: 0.9rem; transition: color 0.2s; }
-  .archive-title:hover { text-decoration: underline; }
+  .archive-title { font-size: 0.9rem; transition: color 0.25s var(--ease-out-expo), transform 0.25s var(--ease-spring); display: inline-block; }
+  .archive-title:hover { text-decoration: underline; transform: translateX(3px); }
   .empty { color: #888; text-align: center; padding: 3rem; }
   @media (max-width: 768px) { .archive-item { flex-direction: column; gap: 0.1rem; } .archive-date { width: auto; } }
 </style>

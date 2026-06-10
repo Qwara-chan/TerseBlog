@@ -43,14 +43,26 @@ const { items: posts, totalPages } = paginatePosts(sorted, currentPage, siteConf
 </BaseLayout>
 
 <style>
-  .hero { text-align: center; padding: 3rem 0 2.5rem; border-bottom: 1px solid #ddd; margin-bottom: 2rem; }
+  .hero { text-align: center; padding: 4rem 0 3rem; border-bottom: 1px solid #ddd; margin-bottom: 2.5rem; }
   :global([data-theme='dark']) .hero { border-color: #222; }
-  .hero-title { font-size: 2.2rem; margin: 0 0 0.3rem; letter-spacing: -0.03em; }
-  .hero-desc { color: #888; font-size: 0.95rem; }
+  .hero-title {
+    font-size: 2.6rem; margin: 0 0 0.3rem; letter-spacing: -0.04em;
+    animation: hero-in 0.6s var(--ease-out-expo) both;
+  }
+  .hero-desc {
+    color: #888; font-size: 0.95rem;
+    animation: hero-in 0.6s var(--ease-out-expo) 0.15s both;
+  }
   .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
   .list-count { font-size: 0.8rem; color: #bbb; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  @keyframes hero-in {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
   @media (max-width: 768px) {
-    .hero-title { font-size: 1.6rem; }
-    .hero { padding: 2rem 0 1.5rem; }
+    .hero-title { font-size: 1.8rem; }
+    .hero { padding: 2.5rem 0 2rem; }
   }
 </style>
