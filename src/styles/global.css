@@ -14,10 +14,10 @@ html[data-font-size='small']  { font-size: 0.875rem; }
 html[data-font-size='medium'] { font-size: 1rem; }
 html[data-font-size='large']  { font-size: 1.125rem; }
 
-/* ── Content Width ── */
-html[data-content-width='narrow'] { --content-width: 640px; }
-html[data-content-width='normal'] { --content-width: 720px; }
-html[data-content-width='wide']   { --content-width: 860px; }
+/* ── Content Width (responsive via min() — shrinks on mobile) ── */
+html[data-content-width='narrow'] { --content-width: min(640px, 80vw); }
+html[data-content-width='normal'] { --content-width: min(720px, 88vw); }
+html[data-content-width='wide']   { --content-width: min(860px, 95vw); }
 
 /* ── Font Family ── */
 html[data-font-family='sans']  { --font-family-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', Roboto, Helvetica, Arial, sans-serif; }

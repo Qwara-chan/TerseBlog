@@ -43,7 +43,7 @@
       idx = -1;
       results.innerHTML = res.map((r, i) => {
         const { title, description, slug, tags, date } = r.item;
-        const desc = searchEngine.highlight(description.slice(0, 140), e.target.value);
+        const desc = searchEngine.highlight((description || '').slice(0, 140), e.target.value);
         const tagList = tags ? tags.split(', ').filter(Boolean) : [];
         const dateStr = date ? new Date(date).toLocaleDateString('default', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
         return `<a href="/posts/${slug}" class="result-item" data-i="${i}" style="animation-delay:${i * 30}ms">

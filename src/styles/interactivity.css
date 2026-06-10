@@ -17,12 +17,6 @@ html[data-toc-visible='false'] .sidebar-toc { display: none; }
   }
 }
 
-/* ── Content Width on small screens: adjust via padding ── */
-@media (max-width: 640px) {
-  html[data-content-width='narrow'] .container { padding-left: 2rem; padding-right: 2rem; }
-  html[data-content-width='wide']   .container { padding-left: 0.5rem; padding-right: 0.5rem; }
-}
-
 /* ── View Transitions ── */
 @view-transition { navigation: auto; }
 

@@ -58,12 +58,13 @@ function headingId(text: string): string {
  */
 export function generateTOC(content: string, maxDepth?: number): HeadingItem[] {
   const depth = maxDepth ?? siteConfig.content.tocMaxDepth;
+  const withoutCode = content.replace(/```[\s\S]*?```/g, '');
   const headingRegex = /^(#{1,6})\s+(.+)$/gm;
   const items: HeadingItem[] = [];
   const stack: HeadingItem[] = [];
 
   let match: RegExpExecArray | null;
-  while ((match = headingRegex.exec(content)) !== null) {
+  while ((match = headingRegex.exec(withoutCode)) !== null) {
     const level = match[1].length;
     if (level > depth) continue;
 
@@ -143,7 +144,14 @@ export function getAllPosts(modules: Record<string, unknown>[] | Record<string, 
   const isProd = import.meta.env.PROD;
   return posts
     .filter((p) => !(isProd && p.draft))
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    .sort((a, b) => {
+      const aTime = new Date(a.date).getTime();
+      const bTime = new Date(b.date).getTime();
+      if (isNaN(aTime) && isNaN(bTime)) return 0;
+      if (isNaN(aTime)) return 1;
+      if (isNaN(bTime)) return -1;
+      return bTime - aTime;
+    });
 }
 
 /**

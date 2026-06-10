@@ -33,7 +33,7 @@ export const GET: APIRoute = async () => {
     const m = mod as Record<string, any>;
     const fm = m.frontmatter || {};
     if (isProd && fm.draft) continue;
-    const raw = typeof m.rawContent === 'function' ? m.rawContent() : '';
+    const raw = typeof m.rawContent === 'function' ? m.rawContent() : (m.rawContent as string) || '';
 
     posts.push({
       title: fm.title || slug,

@@ -19,7 +19,13 @@ export function estimateReadingTime(content: string): number {
 }
 
 export function isExternalUrl(href: string): boolean {
-  return /^https?:\/\//.test(href) && !href.includes(siteConfig.site.replace(/https?:\/\//, ''));
+  try {
+    const url = new URL(href);
+    const siteUrl = new URL(siteConfig.site);
+    return url.hostname !== siteUrl.hostname;
+  } catch {
+    return false;
+  }
 }
 
 export function groupPostsByYear(posts: { date: string }[]): Map<number, typeof posts> {
