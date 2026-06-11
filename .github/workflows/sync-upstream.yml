@@ -1,0 +1,37 @@
+name: Sync Upstream
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/Qwara-chan/TerseBlog.git
+          git fetch upstream
+
+      - name: Create sync PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "sync: merge upstream changes"
+          branch: sync/upstream
+          title: "Sync upstream changes"
+          body: |
+            This PR merges the latest changes from the upstream template.
+            Please review any conflicts before merging.

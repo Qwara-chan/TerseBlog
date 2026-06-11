@@ -108,6 +108,16 @@ TerseBlog/
 
 A pre-configured workflow is available at `.github/workflows/deploy.yml`.
 
+## Keeping in Sync
+
+If you created your repo from this template, you can pull in upstream updates at any time:
+
+1. Go to **Actions** → **Sync Upstream** → **Run workflow**
+2. A pull request will be created with the latest upstream changes
+3. Review conflicts (if any) and merge
+
+---
+
 ## Tech Stack
 
 | Technology | Purpose |
@@ -174,6 +184,16 @@ npm run preview
 ### 部署
 
 详见上方 [Deployment](#deployment) 章节。
+
+### 同步上游更新
+
+如果用此模板创建了仓库，你可以随时拉取上游更新：
+
+1. 进入 **Actions** → **Sync Upstream** → **Run workflow**
+2. 会自动创建一个包含上游最新变更的 Pull Request
+3. 审查并处理后合并即可
+
+---
 
 ### 技术栈
 
