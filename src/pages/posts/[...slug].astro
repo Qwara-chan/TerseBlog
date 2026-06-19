@@ -2,6 +2,8 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import TOC from '@/components/TOC.astro';
 import DiffViewer from '@/components/DiffViewer.astro';
+import ReadingProgress from '@/components/ReadingProgress.astro';
+import CodeBlockEnhancer from '@/components/CodeBlockEnhancer.astro';
 import { getAllPosts, getAdjacentPosts, generateTOC } from '@/lib/content';
 import { formatDate, estimateReadingTime } from '@/lib/utils';
 import { siteConfig } from '@/config';
@@ -25,15 +27,21 @@ const readingTime = estimateReadingTime(post.content);
 ---
 
 <BaseLayout title={post.title} description={post.description} canonical={`${siteConfig.site}/posts/${post.slug}`}>
+  <ReadingProgress />
   <div class="container post-page">
     <div class="post-layout">
       <article class="post-content">
+        {post.cover && (
+          <div class="post-hero-cover">
+            <img src={post.cover} alt="" />
+          </div>
+        )}
         <header class="post-header">
           <h1 class="post-title">{post.title}</h1>
           <div class="post-meta">
             <time datetime={post.date}>{formatDate(post.date)}</time>
             <span class="dot">·</span>
-            <span>{readingTime} min</span>
+            <span>{readingTime} min read</span>
             {post.tags.length > 0 && <><span class="dot">·</span> {post.tags.map(t => <a href={`/tags/${t.toLowerCase()}`} class="tag">{t}</a>)}</>}
           </div>
         </header>
@@ -41,6 +49,7 @@ const readingTime = estimateReadingTime(post.content);
         <DiffViewer originalDate={post.date} updatedDate={post.updated} />
 
         <div class="prose"><Content /></div>
+        <CodeBlockEnhancer />
 
         <nav class="post-nav">
           {prev && <a href={`/posts/${prev.slug}`} class="nav-card"><span class="nav-label">← Previous</span><span class="nav-title">{prev.title}</span></a>}
@@ -57,22 +66,45 @@ const readingTime = estimateReadingTime(post.content);
   .post-page { padding: 2rem 0; }
   .post-layout { display: flex; gap: 3rem; }
   .post-content { flex: 1; min-width: 0; }
-  .post-header { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid #ddd; }
-  :global([data-theme='dark']) .post-header { border-color: #222; }
-  .post-title { font-size: 2rem; margin: 0 0 0.6rem; letter-spacing: -0.03em; }
-  .post-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 0.3rem; font-size: 0.85rem; color: #999; }
-  :global([data-theme='dark']) .post-meta { color: #777; }
-  .dot { color: #ddd; }
-  :global([data-theme='dark']) .dot { color: #333; }
-  .post-nav { display: flex; justify-content: space-between; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #ddd; gap: 1rem; }
-  :global([data-theme='dark']) .post-nav { border-color: #222; }
-  .nav-card { flex: 1; display: flex; flex-direction: column; gap: 0.25rem; padding: 1rem 1.25rem; border: 1px solid #ddd; transition: border-color 0.2s; }
+
+  .post-hero-cover {
+    margin: -2rem -1.5rem 2rem; overflow: hidden;
+    aspect-ratio: 21 / 9; background: var(--code-bg);
+    border-radius: 0 0 12px 12px;
+  }
+  .post-hero-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .post-header { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+  :global([data-theme='dark']) .post-header { border-color: var(--border); }
+  .post-title {
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    margin: 0 0 0.6rem; letter-spacing: -0.03em;
+    line-height: 1.2; font-weight: 800;
+  }
+  .post-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem; font-size: 0.85rem; color: var(--muted); }
+  :global([data-theme='dark']) .post-meta { color: var(--muted); }
+  .dot { color: var(--border); }
+  :global([data-theme='dark']) .dot { color: var(--border); }
+  .post-nav { display: flex; justify-content: space-between; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); gap: 1rem; }
+  :global([data-theme='dark']) .post-nav { border-color: var(--border); }
+  .nav-card {
+    flex: 1; display: flex; flex-direction: column; gap: 0.25rem;
+    padding: 1rem 1.25rem; border: 1px solid var(--border); border-radius: 8px;
+    transition: all 0.25s var(--ease-out-expo);
+  }
   .nav-card.next { text-align: right; }
-  :global([data-theme='dark']) .nav-card { border-color: #333; }
-  .nav-card:hover { border-color: #000; }
-  :global([data-theme='dark']) .nav-card:hover { border-color: #fff; }
-  .nav-label { font-size: 0.75rem; color: #999; letter-spacing: 0.03em; }
+  :global([data-theme='dark']) .nav-card { border-color: var(--border); }
+  .nav-card:hover { border-color: var(--accent); background: var(--accent-soft); transform: translateY(-2px); }
+  :global([data-theme='dark']) .nav-card:hover { border-color: var(--accent); }
+  .nav-label { font-size: 0.75rem; color: var(--muted); letter-spacing: 0.03em; }
   .nav-title { font-weight: 600; font-size: 0.9rem; }
-  .nav-card:hover .nav-title { text-decoration: underline; }
-  @media (max-width: 1024px) { .post-layout { flex-direction: column; } .post-title { font-size: 1.6rem; } .post-nav { flex-direction: column; } }
+  .nav-card:hover .nav-title { color: var(--accent); }
+
+  @media (max-width: 1024px) {
+    .post-layout { flex-direction: column; }
+    .post-nav { flex-direction: column; }
+  }
+  @media (max-width: 768px) {
+    .post-hero-cover { margin: -2rem -1rem 1.5rem; border-radius: 0; }
+  }
 </style>

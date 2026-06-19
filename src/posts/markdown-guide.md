@@ -5,6 +5,8 @@ description: A comprehensive guide to Markdown features supported on this blog, 
 tags: [markdown, guide, tutorial]
 draft: false
 updated: 2026-06-07
+cover: https://picsum.photos/seed/markdown-guide/1200/675
+featured: true
 ---
 
 # Markdown Guide

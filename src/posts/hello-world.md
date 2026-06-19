@@ -5,6 +5,8 @@ description: My first blog post on this Astro blog. Welcome!
 tags: [astro, blog, getting-started]
 draft: false
 updated: 2026-06-07
+cover: https://picsum.photos/seed/hello-world/1200/675
+featured: true
 ---
 
 # Hello World

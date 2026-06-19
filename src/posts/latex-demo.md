@@ -4,6 +4,7 @@ date: 2026-06-07
 description: A showcase of LaTeX math formula rendering with KaTeX on this Astro blog.
 tags: [math, latex, katex]
 draft: false
+cover: https://picsum.photos/seed/latex-demo/1200/675
 ---
 
 # LaTeX Math Demo

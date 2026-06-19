@@ -13,7 +13,12 @@ const sortParam = url.searchParams.get('sort');
 const currentPage = Math.max(1, parseInt(pageParam || '1') || 1);
 const sorted = [...allPosts];
 if (sortParam === 'asc') sorted.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-const { items: posts, totalPages } = paginatePosts(sorted, currentPage, siteConfig.content.postsPerPage);
+
+// On the first page, show featured posts in a hero strip (no duplicates below).
+const showFeatured = currentPage === 1;
+const featured = showFeatured ? sorted.filter(p => p.featured) : [];
+const rest = showFeatured ? sorted.filter(p => !p.featured) : sorted;
+const { items: posts, totalPages } = paginatePosts(rest, currentPage, siteConfig.content.postsPerPage);
 ---
 
 <BaseLayout title={siteConfig.title} description={siteConfig.description}>
@@ -23,9 +28,24 @@ const { items: posts, totalPages } = paginatePosts(sorted, currentPage, siteConf
       <p class="hero-desc">{siteConfig.description}</p>
     </section>
 
+    {featured.length > 0 && (
+      <section class="featured-strip">
+        <h2 class="section-title"><span class="section-bar"></span>Featured</h2>
+        {featured.map((post) => (
+          <PostCard slug={post.slug} title={post.title} date={post.date}
+            description={post.description} tags={post.tags}
+            readingTime={post.readingTime} updated={post.updated}
+            cover={post.cover} featured={true} />
+        ))}
+      </section>
+    )}
+
     <div class="list-header">
-      <span class="list-count">{allPosts.length} posts</span>
-      <SortToggle current={sortParam === 'asc' ? 'asc' : 'desc'} />
+      <h2 class="section-title"><span class="section-bar"></span>{featured.length > 0 ? 'Latest' : 'All Posts'}</h2>
+      <div class="list-actions">
+        <span class="list-count">{allPosts.length} posts</span>
+        <SortToggle current={sortParam === 'asc' ? 'asc' : 'desc'} />
+      </div>
     </div>
 
     <div class="post-list" data-post-list>
@@ -33,7 +53,8 @@ const { items: posts, totalPages } = paginatePosts(sorted, currentPage, siteConf
         <div data-post-item data-post-date={post.date}>
           <PostCard slug={post.slug} title={post.title} date={post.date}
             description={post.description} tags={post.tags}
-            readingTime={post.readingTime} updated={post.updated} />
+            readingTime={post.readingTime} updated={post.updated}
+            cover={post.cover} featured={false} />
         </div>
       ))}
     </div>
@@ -43,18 +64,45 @@ const { items: posts, totalPages } = paginatePosts(sorted, currentPage, siteConf
 </BaseLayout>
 
 <style>
-  .hero { text-align: center; padding: 4rem 0 3rem; border-bottom: 1px solid #ddd; margin-bottom: 2.5rem; }
-  :global([data-theme='dark']) .hero { border-color: #222; }
+  .hero {
+    text-align: center; padding: 4.5rem 0 3rem;
+    border-bottom: 1px solid var(--border); margin-bottom: 2.5rem;
+  }
+  :global([data-theme='dark']) .hero { border-color: var(--border); }
   .hero-title {
-    font-size: 2.6rem; margin: 0 0 0.3rem; letter-spacing: -0.04em;
+    font-size: clamp(2.2rem, 6vw, 3.2rem);
+    margin: 0 0 0.4rem; letter-spacing: -0.04em;
+    font-weight: 800; line-height: 1.1;
+    background: linear-gradient(135deg, currentColor 0%, var(--accent) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
     animation: hero-in 0.6s var(--ease-out-expo) both;
   }
   .hero-desc {
-    color: #888; font-size: 0.95rem;
+    color: var(--muted); font-size: 1rem;
     animation: hero-in 0.6s var(--ease-out-expo) 0.15s both;
   }
-  .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-  .list-count { font-size: 0.8rem; color: #bbb; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  .section-title {
+    display: flex; align-items: center; gap: 0.6em;
+    font-size: 0.85rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--muted-strong); margin: 0 0 1.25rem;
+  }
+  .section-bar {
+    display: inline-block; width: 18px; height: 2px;
+    background: var(--accent); border-radius: 2px;
+  }
+
+  .featured-strip { margin-bottom: 3rem; }
+
+  .list-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;
+  }
+  .list-header .section-title { margin-bottom: 0; }
+  .list-actions { display: flex; align-items: center; gap: 1rem; }
+  .list-count { font-size: 0.78rem; color: var(--muted); letter-spacing: 0.03em; }
 
   @keyframes hero-in {
     from { opacity: 0; transform: translateY(-8px); }
@@ -62,7 +110,6 @@ const { items: posts, totalPages } = paginatePosts(sorted, currentPage, siteConf
   }
 
   @media (max-width: 768px) {
-    .hero-title { font-size: 1.8rem; }
-    .hero { padding: 2.5rem 0 2rem; }
+    .hero { padding: 3rem 0 2rem; }
   }
 </style>

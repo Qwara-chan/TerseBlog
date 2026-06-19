@@ -109,6 +109,8 @@ export function buildPost(mod: Record<string, unknown>, slug: string): Post {
     tags: Array.isArray(fm.tags) ? fm.tags : [],
     draft: fm.draft ?? false,
     updated: fm.updated,
+    cover: fm.cover,
+    featured: fm.featured ?? false,
     slug,
     content: rawContent,
     headings: generateTOC(rawContent || desc),

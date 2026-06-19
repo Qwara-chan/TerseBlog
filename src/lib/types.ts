@@ -5,6 +5,8 @@ export interface PostFrontmatter {
   tags: string[];
   draft?: boolean;
   updated?: string;
+  cover?: string;
+  featured?: boolean;
 }
 
 export interface Post extends PostFrontmatter {

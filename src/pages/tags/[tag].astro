@@ -25,7 +25,8 @@ const { items, totalPages } = paginatePosts(posts, currentPage, siteConfig.conte
       {items.map(post => (
         <PostCard slug={post.slug} title={post.title} date={post.date}
           description={post.description} tags={post.tags}
-          readingTime={post.readingTime} updated={post.updated} />
+          readingTime={post.readingTime} updated={post.updated}
+          cover={post.cover} featured={post.featured} />
       ))}
     </div>
     {totalPages > 1 && <a href={`/tags/${tag}?page=${currentPage + 1}`} class="more">More →</a>}
@@ -34,8 +35,8 @@ const { items, totalPages } = paginatePosts(posts, currentPage, siteConfig.conte
 
 <style>
   .page-title { font-size: 1.4rem; margin: 2rem 0 1.5rem; font-weight: 600; }
-  .count { font-weight: 400; color: #bbb; margin-left: 0.4rem; font-size: 0.9rem; }
-  .more { display: inline-block; margin-top: 1.5rem; font-size: 0.9rem; color: #888; transition: color 0.25s var(--ease-out-expo), transform 0.25s var(--ease-spring); }
-  .more:hover { color: #000; transform: translateX(3px); }
-  :global([data-theme='dark']) .more:hover { color: #fff; transform: translateX(3px); }
+  .count { font-weight: 400; color: var(--muted); margin-left: 0.4rem; font-size: 0.9rem; }
+  .more { display: inline-block; margin-top: 1.5rem; font-size: 0.9rem; color: var(--muted); transition: color 0.25s var(--ease-out-expo), transform 0.25s var(--ease-spring); }
+  .more:hover { color: var(--accent); transform: translateX(3px); }
+  :global([data-theme='dark']) .more:hover { color: var(--accent); transform: translateX(3px); }
 </style>

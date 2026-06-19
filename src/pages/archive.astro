@@ -37,16 +37,23 @@ const grouped = groupPostsByYear(allPosts);
   .archive { padding: 2rem 0; max-width: 600px; margin: 0 auto; }
   .page-title { font-size: 1.8rem; margin-bottom: 2rem; }
   .year-section { margin-bottom: 2rem; }
-  .year { font-size: 1.3rem; margin-bottom: 0.75rem; font-weight: 600; }
+  .year {
+    font-size: 1.3rem; margin-bottom: 0.75rem; font-weight: 600;
+    padding-left: 0.6em; position: relative;
+  }
+  .year::before {
+    content: ''; position: absolute; left: 0; top: 0.18em; bottom: 0.18em;
+    width: 3px; background: var(--accent); border-radius: 2px;
+  }
   .archive-list { list-style: none; }
   .archive-item {
     display: flex; align-items: baseline; gap: 1rem;
-    padding: 0.4rem 0; border-bottom: 1px solid #eee;
+    padding: 0.4rem 0; border-bottom: 1px solid var(--border);
   }
-  :global([data-theme='dark']) .archive-item { border-color: #1a1a1a; }
-  .archive-date { flex-shrink: 0; width: 110px; font-size: 0.8rem; color: #999; }
+  :global([data-theme='dark']) .archive-item { border-color: var(--border); }
+  .archive-date { flex-shrink: 0; width: 110px; font-size: 0.8rem; color: var(--muted); }
   .archive-title { font-size: 0.9rem; transition: color 0.25s var(--ease-out-expo), transform 0.25s var(--ease-spring); display: inline-block; }
-  .archive-title:hover { text-decoration: underline; transform: translateX(3px); }
-  .empty { color: #888; text-align: center; padding: 3rem; }
+  .archive-title:hover { text-decoration: underline; text-decoration-color: var(--accent); color: var(--accent); transform: translateX(3px); }
+  .empty { color: var(--muted); text-align: center; padding: 3rem; }
   @media (max-width: 768px) { .archive-item { flex-direction: column; gap: 0.1rem; } .archive-date { width: auto; } }
 </style>
