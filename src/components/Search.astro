@@ -66,8 +66,14 @@ const tt = (key: string, fallback: string) => t ? t(key) : fallback;
   const results = document.querySelector('[data-search-results]');
   const closeBtn = document.querySelector('[data-search-close]');
   let idx = -1, timer;
+  let indexReady = false;
+  let indexPromise: Promise<void> | null = null;
 
-  searchEngine.init();
+  function ensureIndex() {
+    if (indexReady) return;
+    indexReady = true;
+    indexPromise = searchEngine.init();
+  }
 
   function open() {
     overlay?.removeAttribute('hidden');
@@ -76,6 +82,7 @@ const tt = (key: string, fallback: string) => t ? t(key) : fallback;
       input.focus();
     }
     document.body.style.overflow = 'hidden';
+    ensureIndex();
   }
   function close() { overlay?.setAttribute('hidden', ''); document.body.style.overflow = ''; idx = -1; if (input) input.value = ''; if (results) results.innerHTML = ''; }
 
@@ -90,10 +97,11 @@ const tt = (key: string, fallback: string) => t ? t(key) : fallback;
 
   input?.addEventListener('input', e => {
     clearTimeout(timer);
-    timer = setTimeout(() => {
+    timer = setTimeout(async () => {
       if (!results) return;
       const v = (e.target as HTMLInputElement).value;
       if (!v.trim()) { renderEmpty(); return; }
+      if (indexPromise) { await indexPromise; indexPromise = null; }
       const res = searchEngine.search(v);
       if (!res.length) { renderNoResults(); return; }
       idx = -1;
@@ -162,6 +170,7 @@ const tt = (key: string, fallback: string) => t ? t(key) : fallback;
     display: flex; flex-direction: column;
     overflow: hidden;
     animation: modal-in 0.35s var(--ease-spring);
+    contain: layout style paint;
   }
   :global([data-theme='dark']) .search-modal {
     background: #181818;

@@ -25,12 +25,13 @@ const allPosts = getAllPosts(import.meta.glob('../../posts/zh-CN/*.md', { eager:
 const { prev, next } = getAdjacentPosts(post.slug, allPosts);
 const headings = generateTOC(post.content, siteConfig.content.tocMaxDepth);
 const readingTime = estimateReadingTime(post.content);
+const hasMath = /\$\$|\\\(|\\\[/.test(post.content);
 ---
 
 {enabled && <RedirectToLocale title={post.title} rest={`posts/${post.slug}`} />}
 
 {enabled ? null : (
-<BaseLayout title={post.title} description={post.description} canonical={`${siteConfig.site}/posts/${post.slug}`}>
+<BaseLayout title={post.title} description={post.description} canonical={`${siteConfig.site}/posts/${post.slug}`} includeKatex={hasMath}>
   <div class="container post-page">
     <div class="post-layout">
       <article class="post-content">

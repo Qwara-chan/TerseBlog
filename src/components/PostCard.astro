@@ -37,6 +37,7 @@ const finalHref = currentLocale ? `/${prefixFor(currentLocale)}/posts/${slug}` :
     border-bottom: 1px solid #eee;
     border-left: 2px solid transparent;
     margin-left: -1rem;
+    contain: layout style;
     transition: border-color 0.35s var(--ease-out-expo), transform 0.35s var(--ease-spring);
   }
   :global([data-theme='dark']) .post-card { border-color: #222; }

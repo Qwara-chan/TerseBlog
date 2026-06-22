@@ -118,7 +118,7 @@ hr { border: none; border-top: 1px solid #ddd; margin: 2.5em 0; }
   padding: 0.6em 1.2em;
   font-size: 0.85rem; font-weight: 500;
   border: 1px solid #000;
-  transition: all 0.35s var(--ease-spring);
+  transition: background 0.35s var(--ease-spring), color 0.35s var(--ease-spring), border-color 0.35s var(--ease-spring), transform 0.35s var(--ease-spring);
 }
 [data-theme='dark'] .btn { border-color: #eee; }
 .btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); transform: translateY(-1px); }
@@ -188,15 +188,31 @@ hr { border: none; border-top: 1px solid #ddd; margin: 2.5em 0; }
 
 /* Clip-path wipe reveal for [data-reveal] — only hide when JS is active */
 .js [data-reveal] {
+  position: relative;
   opacity: 0;
-  clip-path: inset(0 100% 0 0);
-  transition: clip-path 0.7s var(--ease-out-expo),
-              opacity 0.5s var(--ease-out-expo);
+  transition: opacity 0.5s var(--ease-out-expo);
   transition-delay: var(--reveal-delay, 0ms);
+}
+.js [data-reveal]::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: 1;
+  background: var(--reveal-bg, #fff);
+  pointer-events: none;
+  transform-origin: right;
+  transform: scaleX(1);
+  transition: transform 0.7s var(--ease-out-expo);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+[data-theme='dark'] .js [data-reveal]::before {
+  background: var(--reveal-bg-dark, #111);
 }
 .js [data-reveal].revealed {
   opacity: 1;
-  clip-path: inset(0 0 0 0);
+}
+.js [data-reveal].revealed::before {
+  transform: scaleX(0);
 }
 
 /* Accent marker line utility */
@@ -214,5 +230,6 @@ hr { border: none; border-top: 1px solid #ddd; margin: 2.5em 0; }
     transition-duration: 0.01ms !important;
   }
   [data-split] .char { opacity: 1 !important; animation: none !important; }
-  [data-reveal] { opacity: 1 !important; clip-path: none !important; }
+  [data-reveal] { opacity: 1 !important; }
+  [data-reveal]::before { display: none !important; }
 }

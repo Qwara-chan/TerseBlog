@@ -47,6 +47,7 @@
     "tagsLabel": "Tags"
   },
   "archive": {
+    "title": "Archive",
     "empty": "No posts yet."
   },
   "about": {

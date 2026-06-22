@@ -47,6 +47,7 @@
     "tagsLabel": "标签"
   },
   "archive": {
+    "title": "归档",
     "empty": "暂无文章。"
   },
   "about": {

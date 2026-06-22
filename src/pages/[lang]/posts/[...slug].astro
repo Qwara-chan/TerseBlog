@@ -47,10 +47,11 @@ const tt = (key: string, args?: Record<string, string | number>) => t(key, args)
 const { prev, next } = getAdjacentPostsInLocale(post.slug, currentLocale);
 const headings = generateTOC(post.content, siteConfig.content.tocMaxDepth);
 const readingTime = estimateReadingTime(post.content);
+const hasMath = /\$\$|\\\(|\\\[/.test(post.content);
 const postHref = (slug: string) => `/${prefixFor(currentLocale)}/posts/${slug}`;
 ---
 
-<BaseLayout title={post.title} description={post.description} canonical={`${siteConfig.site}/posts/${post.slug}`} lang={currentLocale} currentPath={Astro.url.pathname}>
+<BaseLayout title={post.title} description={post.description} canonical={`${siteConfig.site}/posts/${post.slug}`} lang={currentLocale} currentPath={Astro.url.pathname} includeKatex={hasMath}>
   <div class="container post-page">
     <div class="post-layout">
       <article class="post-content">

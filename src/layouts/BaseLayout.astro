@@ -16,9 +16,10 @@ export interface Props {
   description?: string;
   canonical?: string;
   lang?: Locale;
+  includeKatex?: boolean;
 }
 
-const { title, description, canonical, lang } = Astro.props;
+const { title, description, canonical, lang, includeKatex = false } = Astro.props;
 const enabled = siteConfig.i18n.enabled;
 
 const currentLocale: Locale = enabled
@@ -65,13 +66,17 @@ const menuLabel = enabled && t ? t('common.menu') : 'Menu';
     })} />
   )}
 
-  <!-- KaTeX CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <!-- KaTeX CSS (only on pages with math) -->
+  {includeKatex && (
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  )}
 
   <!-- Display font (Space Grotesk) — used only for large headings -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" /></noscript>
 
 
   <!-- Umami Analytics -->
@@ -104,6 +109,7 @@ const menuLabel = enabled && t ? t('common.menu') : 'Menu';
       padding: 1.5rem; display: flex; flex-direction: column; gap: 0.25rem;
       box-shadow: 2px 0 12px rgba(0,0,0,0.08);
       overflow-y: auto;
+      contain: layout style paint;
     }
     :global([data-theme='dark']) .mobile-drawer { background: #111; box-shadow: 2px 0 12px rgba(0,0,0,0.4); }
     .mobile-drawer.open { transform: translateX(0); }
@@ -244,14 +250,16 @@ const menuLabel = enabled && t ? t('common.menu') : 'Menu';
           if (el.dataset.splitDone) return;
           var text = el.textContent || '';
           el.setAttribute('aria-label', text);
-          el.textContent = '';
+          var frag = document.createDocumentFragment();
           for (var i = 0; i < text.length; i++) {
             var span = document.createElement('span');
             span.className = 'char';
             span.textContent = text[i] === ' ' ? '\u00A0' : text[i];
             span.style.setProperty('--i', String(i));
-            el.appendChild(span);
+            frag.appendChild(span);
           }
+          el.textContent = '';
+          el.appendChild(frag);
           el.dataset.splitDone = '1';
         });
 
@@ -263,25 +271,32 @@ const menuLabel = enabled && t ? t('common.menu') : 'Menu';
           });
         });
 
-        if (!reduce) {
+        if (!reduce && window.matchMedia('(hover: hover)').matches) {
           var mags = document.querySelectorAll('[data-magnetic]');
           mags.forEach(function (el) {
             if (el.dataset.magDone) return;
             el.dataset.magDone = '1';
+            var rafId = null;
             el.addEventListener('mousemove', function (e) {
-              var r = el.getBoundingClientRect();
-              var x = (e.clientX - r.left - r.width / 2) / r.width;
-              var y = (e.clientY - r.top - r.height / 2) / r.height;
-              el.style.transform = 'translate(' + (x * 6).toFixed(2) + 'px, ' + (y * 6).toFixed(2) + 'px)';
+              if (rafId) return;
+              var cx = e.clientX, cy = e.clientY;
+              rafId = requestAnimationFrame(function () {
+                rafId = null;
+                var r = el.getBoundingClientRect();
+                var x = (cx - r.left - r.width / 2) / r.width;
+                var y = (cy - r.top - r.height / 2) / r.height;
+                el.style.transform = 'translate(' + (x * 6).toFixed(2) + 'px, ' + (y * 6).toFixed(2) + 'px)';
+              });
             });
-            el.addEventListener('mouseleave', function () { el.style.transform = ''; });
+            el.addEventListener('mouseleave', function () { if (rafId) cancelAnimationFrame(rafId); rafId = null; el.style.transform = ''; });
           });
         }
 
         var path = location.pathname.replace(/\/+$/, '') || '/';
         document.querySelectorAll('.nav-link').forEach(function (a) {
           var href = (a.getAttribute('href') || '').replace(/\/+$/, '') || '/';
-          var isActive = href === path || (href !== '/' && path.startsWith(href + '/'));
+          var isSiteRoot = href === '/' || /^\/[a-z]{2}(-[A-Z]{2})?$/.test(href);
+          var isActive = href === path || (!isSiteRoot && path.startsWith(href + '/'));
           if (isActive) a.setAttribute('data-active', '');
           else a.removeAttribute('data-active');
         });
@@ -289,6 +304,7 @@ const menuLabel = enabled && t ? t('common.menu') : 'Menu';
 
       initMotion();
       document.addEventListener('astro:page-load', initMotion);
+      document.addEventListener('i18n-applied', initMotion);
     })();
   </script>
 
@@ -300,6 +316,10 @@ const menuLabel = enabled && t ? t('common.menu') : 'Menu';
         const seg = location.pathname.split('/').filter(Boolean)[0];
         const locale: Locale = (seg && isLocale(seg)) ? seg : DEFAULT_LOCALE;
         applyI18n(locale);
+        document.querySelectorAll('[data-split][data-i18n]').forEach(el => {
+          if (el.dataset.splitDone) delete el.dataset.splitDone;
+        });
+        document.dispatchEvent(new CustomEvent('i18n-applied'));
       }
       bootI18n();
       document.addEventListener('astro:page-load', bootI18n);

@@ -207,6 +207,7 @@ const tt = (key: string, fallback: string, args?: Record<string, string | number
     padding: 1.5rem; display: flex; flex-direction: column; gap: 0;
     box-shadow: -2px 0 12px rgba(0,0,0,0.08);
     overflow-y: auto;
+    contain: layout style paint;
   }
   .settings-drawer.open { transform: translateX(0); }
 

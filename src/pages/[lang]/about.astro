@@ -39,7 +39,7 @@ const tt = (key: string, args?: Record<string, string | number>) => t(key, args)
 </BaseLayout>
 
 <style>
-  .about { padding: 2rem 0; max-width: 600px; margin: 0 auto; }
+  .about { padding: 2rem 0; max-width: calc(var(--content-width) * 5 / 6); margin: 0 auto; }
   .page-title { font-family: var(--font-family-display); font-size: 1.8rem; margin-bottom: 2rem; font-weight: 700; letter-spacing: -0.02em; }
   .about-section { margin-bottom: 2.5rem; }
   .about-section h2 { font-size: 1.1rem; margin-bottom: 0.5rem; font-weight: 600; }

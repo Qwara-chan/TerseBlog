@@ -52,7 +52,7 @@ const fmtMonthDay = (d: string) => new Date(d).toLocaleDateString(currentLocale,
 </BaseLayout>
 
 <style>
-  .archive { padding: 2rem 0; max-width: 600px; margin: 0 auto; }
+  .archive { padding: 2rem 0; max-width: calc(var(--content-width) * 5 / 6); margin: 0 auto; }
   .page-title { font-size: 1.8rem; margin-bottom: 2rem; }
   .year-section { margin-bottom: 2rem; }
   .year { font-family: var(--font-family-display); font-size: 1.3rem; margin-bottom: 0.75rem; font-weight: 700; letter-spacing: -0.02em; }

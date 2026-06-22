@@ -37,7 +37,7 @@ function withLocale(p: string) { return `${localePrefix}${p === '/' ? '' : p}`; 
   .page-num {
     display: flex; align-items: center; justify-content: center;
     width: 34px; height: 34px; font-size: 0.85rem; color: #666;
-    border: 1px solid transparent; transition: all 0.3s var(--ease-spring);
+    border: 1px solid transparent; transition: border-color 0.3s var(--ease-spring), color 0.3s var(--ease-spring), transform 0.3s var(--ease-spring);
   }
   :global([data-theme='dark']) .page-num { color: #999; }
   .page-num:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
