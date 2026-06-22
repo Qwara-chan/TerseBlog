@@ -1,0 +1,97 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PostCard from '@/components/PostCard.astro';
+import Pagination from '@/components/Pagination.astro';
+import SortToggle from '@/components/SortToggle.astro';
+import { getAllPostsInLocale, paginatePosts } from '@/lib/content';
+import { getDictionary, makeT } from '@/i18n/load';
+import { LOCALES, isLocale, prefixFor, DEFAULT_LOCALE } from '@/i18n/config';
+import { siteConfig } from '@/config';
+import type { Locale } from '@/i18n/config';
+
+export async function getStaticPaths() {
+  if (!siteConfig.i18n.enabled) return [];
+  return LOCALES.map(lang => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params;
+if (!isLocale(lang as string)) {
+  return new Response('Not found', { status: 404 });
+}
+const currentLocale = lang as Locale;
+
+const t = makeT(getDictionary(currentLocale));
+const tt = (key: string, args?: Record<string, string | number>) => t(key, args);
+
+const allPosts = getAllPostsInLocale(currentLocale);
+const url = new URL(Astro.request.url);
+const pageParam = url.searchParams.get('page');
+const sortParam = url.searchParams.get('sort');
+const currentPage = Math.max(1, parseInt(pageParam || '1') || 1);
+const sorted = [...allPosts];
+if (sortParam === 'asc') sorted.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+const { items: posts, totalPages } = paginatePosts(sorted, currentPage, siteConfig.content.postsPerPage);
+
+const basePath = `/${prefixFor(currentLocale)}`;
+---
+
+<BaseLayout title={siteConfig.title} description={siteConfig.description} lang={currentLocale} currentPath={Astro.url.pathname}>
+  <div class="container">
+    <section class="hero">
+      <h1 class="hero-title" data-split>{siteConfig.title}</h1>
+      <p class="hero-desc">{siteConfig.description}</p>
+      <hr class="accent-rule hero-rule" />
+    </section>
+
+    <div class="list-header">
+      <span class="list-count" data-i18n="home.postsCountTpl" data-i18n-args={`{"n":${allPosts.length}}`}>{tt('home.postsCountTpl', { n: allPosts.length })}</span>
+      <SortToggle current={sortParam === 'asc' ? 'asc' : 'desc'} t={t} currentLocale={currentLocale} />
+    </div>
+
+    <div class="post-list" data-post-list>
+      {posts.map((post) => (
+        <div data-post-item data-post-date={post.date}>
+          <PostCard slug={post.slug} title={post.title} date={post.date}
+            description={post.description} tags={post.tags}
+            readingTime={post.readingTime} updated={post.updated}
+            t={t} currentLocale={currentLocale} />
+        </div>
+      ))}
+    </div>
+
+    {totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} basePath={basePath} t={t} currentLocale={currentLocale} />}
+  </div>
+</BaseLayout>
+
+<style>
+  .hero { text-align: center; padding: 4rem 0 3rem; border-bottom: 1px solid #ddd; margin-bottom: 2.5rem; }
+  :global([data-theme='dark']) .hero { border-color: #222; }
+  .hero-title {
+    font-size: 2.6rem; margin: 0 0 0.3rem; letter-spacing: -0.03em;
+  }
+  .hero-desc {
+    color: #888; font-size: 0.95rem;
+    animation: hero-desc-in 0.6s var(--ease-out-expo) 0.2s both;
+  }
+  .hero-rule {
+    margin: 1.2rem auto 0;
+    transform: scaleX(0); transform-origin: center;
+    animation: rule-in 0.7s var(--ease-out-expo) 0.4s both;
+  }
+  .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+  .list-count { font-size: 0.8rem; color: #bbb; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  @keyframes hero-desc-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes rule-in {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+
+  @media (max-width: 768px) {
+    .hero-title { font-size: 1.8rem; }
+    .hero { padding: 2.5rem 0 2rem; }
+  }
+</style>

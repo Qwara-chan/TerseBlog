@@ -1,12 +1,14 @@
 ---
+import { siteConfig } from '@/config';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PostCard from '@/components/PostCard.astro';
 import Pagination from '@/components/Pagination.astro';
 import SortToggle from '@/components/SortToggle.astro';
+import RedirectToLocale from '@/components/RedirectToLocale.astro';
 import { getAllPosts, paginatePosts } from '@/lib/content';
-import { siteConfig } from '@/config';
 
-const allPosts = getAllPosts(import.meta.glob('../posts/*.md', { eager: true }));
+const enabled = siteConfig.i18n.enabled;
+const allPosts = enabled ? [] : getAllPosts(import.meta.glob('../posts/zh-CN/*.md', { eager: true }));
 const url = new URL(Astro.request.url);
 const pageParam = url.searchParams.get('page');
 const sortParam = url.searchParams.get('sort');
@@ -16,6 +18,9 @@ if (sortParam === 'asc') sorted.sort((a, b) => new Date(a.date).getTime() - new 
 const { items: posts, totalPages } = paginatePosts(sorted, currentPage, siteConfig.content.postsPerPage);
 ---
 
+{enabled ? (
+  <RedirectToLocale title={siteConfig.title} description={siteConfig.description} preserveQueryAndHash />
+) : (
 <BaseLayout title={siteConfig.title} description={siteConfig.description}>
   <div class="container">
     <section class="hero">
@@ -46,32 +51,13 @@ const { items: posts, totalPages } = paginatePosts(sorted, currentPage, siteConf
 <style>
   .hero { text-align: center; padding: 4rem 0 3rem; border-bottom: 1px solid #ddd; margin-bottom: 2.5rem; }
   :global([data-theme='dark']) .hero { border-color: #222; }
-  .hero-title {
-    font-size: 2.6rem; margin: 0 0 0.3rem; letter-spacing: -0.03em;
-  }
-  .hero-desc {
-    color: #888; font-size: 0.95rem;
-    animation: hero-desc-in 0.6s var(--ease-out-expo) 0.2s both;
-  }
-  .hero-rule {
-    margin: 1.2rem auto 0;
-    transform: scaleX(0); transform-origin: center;
-    animation: rule-in 0.7s var(--ease-out-expo) 0.4s both;
-  }
+  .hero-title { font-size: 2.6rem; margin: 0 0 0.3rem; letter-spacing: -0.03em; }
+  .hero-desc { color: #888; font-size: 0.95rem; animation: hero-desc-in 0.6s var(--ease-out-expo) 0.2s both; }
+  .hero-rule { margin: 1.2rem auto 0; transform: scaleX(0); transform-origin: center; animation: rule-in 0.7s var(--ease-out-expo) 0.4s both; }
   .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
   .list-count { font-size: 0.8rem; color: #bbb; text-transform: uppercase; letter-spacing: 0.05em; }
-
-  @keyframes hero-desc-in {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes rule-in {
-    from { transform: scaleX(0); }
-    to { transform: scaleX(1); }
-  }
-
-  @media (max-width: 768px) {
-    .hero-title { font-size: 1.8rem; }
-    .hero { padding: 2.5rem 0 2rem; }
-  }
+  @keyframes hero-desc-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes rule-in { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @media (max-width: 768px) { .hero-title { font-size: 1.8rem; } .hero { padding: 2.5rem 0 2rem; } }
 </style>
+)}

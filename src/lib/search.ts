@@ -1,4 +1,6 @@
 import Fuse from 'fuse.js';
+import { siteConfig } from '@/config';
+import { prefixFor, DEFAULT_LOCALE, isLocale, type Locale } from '@/i18n/config';
 
 interface SearchDoc {
   title: string;
@@ -15,6 +17,23 @@ interface SearchResult {
   score?: number;
 }
 
+/**
+ * Resolve the current locale from URL (preferred) or localStorage.
+ * Falls back to default locale. Used at runtime to pick the right index file.
+ */
+function resolveLocale(): Locale {
+  if (typeof window === 'undefined') return DEFAULT_LOCALE;
+  if (siteConfig.i18n.enabled) {
+    const seg = location.pathname.split('/').filter(Boolean)[0];
+    if (seg && isLocale(seg)) return seg;
+    try {
+      const stored = localStorage.getItem('astro-blog-locale');
+      if (stored && isLocale(stored)) return stored;
+    } catch { /* ignore */ }
+  }
+  return DEFAULT_LOCALE;
+}
+
 export class SearchEngine {
   private fuse: Fuse<SearchDoc> | null = null;
   private index: SearchDoc[] = [];
@@ -24,8 +43,20 @@ export class SearchEngine {
    */
   async init(): Promise<void> {
     try {
-      const res = await fetch('/search-index.json');
-      this.index = await res.json();
+      const url = siteConfig.i18n.enabled
+        ? '/' + prefixFor(resolveLocale()) + '/search-index.json'
+        : '/search-index.json';
+      const res = await fetch(url);
+      if (!res.ok) {
+        console.error('Search index returned', res.status, 'at', url);
+        return;
+      }
+      const data = await res.json();
+      if (!Array.isArray(data)) {
+        console.error('Search index is not an array at', url);
+        return;
+      }
+      this.index = data;
       this.fuse = new Fuse(this.index, {
         keys: [
           { name: 'title', weight: 2 },

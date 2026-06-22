@@ -1,25 +1,33 @@
 ---
+import { prefixFor, type Locale } from '@/i18n/config';
+
 export interface Props {
   currentPage: number; totalPages: number; basePath: string;
+  t?: ((key: string, args?: Record<string, string | number>) => string) | null;
+  currentLocale?: Locale;
 }
-const { currentPage, totalPages, basePath } = Astro.props;
+const { currentPage, totalPages, basePath, t = null, currentLocale } = Astro.props;
 const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+const tt = (key: string, fallback: string) => t ? t(key) : fallback;
+
+const localePrefix = currentLocale ? `/${prefixFor(currentLocale)}` : '';
+function withLocale(p: string) { return `${localePrefix}${p === '/' ? '' : p}`; }
 ---
 
 <nav class="pagination" aria-label="Pagination">
   {currentPage > 1 && (
-    <a href={currentPage === 2 ? basePath : `${basePath}?page=${currentPage - 1}`} class="page-btn">← Prev</a>
+    <a href={withLocale(currentPage === 2 ? basePath : `${basePath}?page=${currentPage - 1}`)} class="page-btn" data-i18n="pagination.prev">{tt('pagination.prev', '← Prev')}</a>
   )}
   <div class="page-nums">
     {pages.map((p) => {
-      const href = p === 1 ? basePath : `${basePath}?page=${p}`;
+      const href = withLocale(p === 1 ? basePath : `${basePath}?page=${p}`);
       return p === currentPage
         ? <span class="page-num current">{p}</span>
         : <a href={href} class="page-num">{p}</a>;
     })}
   </div>
   {currentPage < totalPages && (
-    <a href={`${basePath}?page=${currentPage + 1}`} class="page-btn">Next →</a>
+    <a href={withLocale(`${basePath}?page=${currentPage + 1}`)} class="page-btn" data-i18n="pagination.next">{tt('pagination.next', 'Next →')}</a>
   )}
 </nav>
 

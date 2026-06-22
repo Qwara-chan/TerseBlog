@@ -13,6 +13,7 @@ export interface Post extends PostFrontmatter {
   headings: HeadingItem[];
   readingTime: number;
   excerpt: string;
+  locale?: string;
 }
 
 export interface HeadingItem {

@@ -1,0 +1,105 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import TOC from '@/components/TOC.astro';
+import DiffViewer from '@/components/DiffViewer.astro';
+import { getAllSlugs, getPostBySlugInLocale, getAdjacentPostsInLocale, generateTOC } from '@/lib/content';
+import { formatDate, estimateReadingTime } from '@/lib/utils';
+import { getDictionary, makeT } from '@/i18n/load';
+import { LOCALES, isLocale, prefixFor } from '@/i18n/config';
+import { siteConfig } from '@/config';
+import type { Locale } from '@/i18n/config';
+
+export async function getStaticPaths() {
+  if (!siteConfig.i18n.enabled) return [];
+  const slugs = getAllSlugs();
+  const modules = import.meta.glob('../../../posts/**/*.md', { eager: true }) as Record<string, any>;
+  const modsBySlugLocale: Record<string, Record<string, any>> = {};
+  for (const [path, mod] of Object.entries(modules)) {
+    const slug = path.split('/').pop()?.replace(/\.(md|mdx)$/, '') || '';
+    const seg = path.match(/\/posts\/([^\/]+)\//)?.[1];
+    if (!slug || !seg) continue;
+    (modsBySlugLocale[slug] ??= {})[seg] = mod;
+  }
+  const DEFAULT = siteConfig.i18n.defaultLocale;
+  const paths: any[] = [];
+  for (const locale of LOCALES) {
+    for (const slug of slugs) {
+      const post = getPostBySlugInLocale(slug, locale);
+      if (!post) continue;
+      const mod = modsBySlugLocale[slug]?.[locale] ?? modsBySlugLocale[slug]?.[DEFAULT];
+      if (!mod) continue;
+      paths.push({ params: { lang: locale, slug }, props: { post, Content: mod.Content, locale } });
+    }
+  }
+  return paths;
+}
+
+const { post, Content, locale } = Astro.props as { post: any; Content: any; locale: Locale };
+const { lang } = Astro.params;
+if (!isLocale(lang as string) || !isLocale(locale)) {
+  return new Response('Not found', { status: 404 });
+}
+const currentLocale = locale;
+
+const t = makeT(getDictionary(currentLocale));
+const tt = (key: string, args?: Record<string, string | number>) => t(key, args);
+
+const { prev, next } = getAdjacentPostsInLocale(post.slug, currentLocale);
+const headings = generateTOC(post.content, siteConfig.content.tocMaxDepth);
+const readingTime = estimateReadingTime(post.content);
+const postHref = (slug: string) => `/${prefixFor(currentLocale)}/posts/${slug}`;
+---
+
+<BaseLayout title={post.title} description={post.description} canonical={`${siteConfig.site}/posts/${post.slug}`} lang={currentLocale} currentPath={Astro.url.pathname}>
+  <div class="container post-page">
+    <div class="post-layout">
+      <article class="post-content">
+        <header class="post-header">
+          <h1 class="post-title" data-split>{post.title}</h1>
+          <div class="post-meta">
+            <time datetime={post.date}>{formatDate(post.date, currentLocale)}</time>
+            <span class="dot">·</span>
+            <span>{readingTime} {tt('postCard.min', 'min')}</span>
+            {post.tags.length > 0 && <><span class="dot">·</span> {post.tags.map((tg: string) => <a href={`/${prefixFor(currentLocale)}/tags/${tg.toLowerCase()}`} class="tag">{tg}</a>)}</>}
+          </div>
+          <hr class="accent-rule post-rule" />
+        </header>
+
+        <DiffViewer originalDate={post.date} updatedDate={post.updated} t={t} currentLocale={currentLocale} />
+
+        <div class="prose"><Content /></div>
+
+        <nav class="post-nav">
+          {prev && <a href={postHref(prev.slug)} class="nav-card"><span class="nav-label" data-i18n="postNav.previous">{tt('postNav.previous')}</span><span class="nav-title">{prev.title}</span></a>}
+          <span></span>
+          {next && <a href={postHref(next.slug)} class="nav-card next"><span class="nav-label" data-i18n="postNav.next">{tt('postNav.next')}</span><span class="nav-title">{next.title}</span></a>}
+        </nav>
+      </article>
+      {headings.length > 0 && <TOC headings={headings} maxDepth={siteConfig.content.tocMaxDepth} t={t} />}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .post-page { padding: 2rem 0; }
+  .post-layout { display: flex; gap: 3rem; }
+  .post-content { flex: 1; min-width: 0; }
+  .post-header { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid #ddd; }
+  :global([data-theme='dark']) .post-header { border-color: #222; }
+  .post-title { font-family: var(--font-family-display); font-size: 2rem; margin: 0 0 0.6rem; letter-spacing: -0.02em; font-weight: 700; }
+  .post-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 0.3rem; font-size: 0.85rem; color: #999; }
+  :global([data-theme='dark']) .post-meta { color: #777; }
+  .dot { color: #ddd; }
+  :global([data-theme='dark']) .dot { color: #333; }
+  .post-rule { margin-top: 1.5rem; }
+  .post-nav { display: flex; justify-content: space-between; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #ddd; gap: 1rem; }
+  :global([data-theme='dark']) .post-nav { border-color: #222; }
+  .nav-card { flex: 1; display: flex; flex-direction: column; gap: 0.25rem; padding: 1rem 1.25rem; border: 1px solid #ddd; transition: border-color 0.3s var(--ease-out-expo), transform 0.3s var(--ease-spring); }
+  .nav-card.next { text-align: right; }
+  :global([data-theme='dark']) .nav-card { border-color: #333; }
+  .nav-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .nav-label { font-size: 0.75rem; color: #999; letter-spacing: 0.03em; }
+  .nav-title { font-weight: 600; font-size: 0.9rem; }
+  .nav-card:hover .nav-title { color: var(--accent); }
+  @media (max-width: 1024px) { .post-layout { flex-direction: column; } .post-title { font-size: 1.6rem; } .post-nav { flex-direction: column; } }
+</style>

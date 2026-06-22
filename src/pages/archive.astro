@@ -1,13 +1,18 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getAllPosts } from '@/lib/content';
-import { formatDate, groupPostsByYear } from '@/lib/utils';
 import { siteConfig } from '@/config';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import RedirectToLocale from '@/components/RedirectToLocale.astro';
+import { getAllPosts } from '@/lib/content';
+import { groupPostsByYear } from '@/lib/utils';
 
-const allPosts = getAllPosts(import.meta.glob('../posts/*.md', { eager: true }));
-const grouped = groupPostsByYear(allPosts);
+const enabled = siteConfig.i18n.enabled;
+const allPosts = enabled ? [] : getAllPosts(import.meta.glob('../posts/zh-CN/*.md', { eager: true }));
+const grouped = enabled ? new Map() : groupPostsByYear(allPosts);
 ---
 
+{enabled && <RedirectToLocale title="Archive" description="All posts by year" rest="archive" preserveQueryAndHash />}
+
+{enabled ? null : (
 <BaseLayout title="Archive" description="All posts by year">
   <div class="container archive">
     <h1 class="page-title" data-split>Archive</h1>
@@ -21,7 +26,7 @@ const grouped = groupPostsByYear(allPosts);
             {posts.map((post: any) => (
               <li class="archive-item">
                 <time class="archive-date" datetime={post.date}>
-                  {new Date(post.date).toLocaleDateString(siteConfig.language, { month: 'long', day: 'numeric' })}
+                  {new Date(post.date).toLocaleDateString('en', { month: 'long', day: 'numeric' })}
                 </time>
                 <a href={`/posts/${post.slug}`} class="archive-title">{post.title}</a>
               </li>
@@ -50,3 +55,4 @@ const grouped = groupPostsByYear(allPosts);
   .empty { color: #888; text-align: center; padding: 3rem; }
   @media (max-width: 768px) { .archive-item { flex-direction: column; gap: 0.1rem; } .archive-date { width: auto; } }
 </style>
+)}

@@ -1,0 +1,47 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getDictionary, makeT } from '@/i18n/load';
+import { LOCALES, isLocale } from '@/i18n/config';
+import { siteConfig } from '@/config';
+import type { Locale } from '@/i18n/config';
+
+export async function getStaticPaths() {
+  if (!siteConfig.i18n.enabled) return [];
+  return LOCALES.map(lang => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params;
+if (!isLocale(lang as string)) {
+  return new Response('Not found', { status: 404 });
+}
+const currentLocale = lang as Locale;
+
+const t = makeT(getDictionary(currentLocale));
+const tt = (key: string, args?: Record<string, string | number>) => t(key, args);
+
+const homeHref = `/${lang}/`;
+---
+
+<BaseLayout title="404 - Page Not Found" lang={currentLocale} currentPath={Astro.url.pathname}>
+  <div class="container not-found">
+    <h1 class="code" data-split>404</h1>
+    <p class="msg" data-i18n="notFound.msg">{tt('notFound.msg')}</p>
+    <a href={homeHref} class="btn" data-i18n="common.backHome">{tt('common.backHome')}</a>
+  </div>
+</BaseLayout>
+
+<style>
+  .not-found { text-align: center; padding: 5rem 0; }
+  .code { font-family: var(--font-family-display); font-size: 6rem; font-weight: 700; margin: 0; line-height: 1; letter-spacing: -0.03em; }
+  :global([data-theme='dark']) .code { color: #eee; }
+  .code::after {
+    content: '';
+    display: inline-block; width: 0.4em; height: 0.85em;
+    background: var(--accent); margin-left: 0.1em; vertical-align: -0.05em;
+    animation: blink 1.1s steps(2, end) infinite;
+  }
+  .msg { color: #888; font-size: 1.05rem; margin: 0.5rem 0 2rem; }
+  :global([data-theme='dark']) .msg { color: #777; }
+  @keyframes blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
+  @media (max-width: 768px) { .code { font-size: 4rem; } }
+</style>

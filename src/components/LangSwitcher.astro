@@ -1,0 +1,125 @@
+---
+import { LOCALES, LOCALE_LABELS, LOCALE_SHORT, prefixFor } from '@/i18n/config';
+import type { Locale } from '@/i18n/config';
+import { siteConfig } from '@/config';
+
+export interface Props {
+  currentLocale: Locale;
+  currentPath: string;
+}
+const { currentLocale, currentPath } = Astro.props;
+const enabled = siteConfig.i18n.enabled;
+
+const seg = currentPath.split('/').filter(Boolean)[0];
+const isLocalePath = enabled && !!seg && !!prefixFor(currentLocale) && prefixFor(currentLocale) === seg;
+const rest = isLocalePath
+  ? '/' + currentPath.split('/').filter(Boolean).slice(1).join('/')
+  : currentPath;
+const normalizedRest = rest === '/' ? '' : rest;
+---
+
+{enabled && (
+<div class="lang-switcher" data-lang-switcher>
+  <button class="lang-toggle" data-lang-toggle aria-label="Language" aria-haspopup="true" aria-expanded="false" data-magnetic>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <circle cx="12" cy="12" r="10"/>
+      <path d="M2 12h20"/>
+      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+    </svg>
+    <span class="lang-current">{LOCALE_SHORT[currentLocale]}</span>
+  </button>
+  <ul class="lang-menu" data-lang-menu hidden>
+    {LOCALES.map((l) => (
+      <li>
+        <a
+          href={`/${prefixFor(l)}${normalizedRest}`}
+          class={`lang-item${l === currentLocale ? ' active' : ''}`}
+          data-lang={l}
+          aria-current={l === currentLocale ? 'true' : undefined}
+        >
+          <span class="lang-code">{LOCALE_SHORT[l]}</span>
+          <span class="lang-name">{LOCALE_LABELS[l]}</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</div>
+)}
+
+<script>
+  import { setStoredLocale } from '@/i18n/runtime';
+
+  const root = document.querySelector('[data-lang-switcher]');
+  if (root) {
+    const toggle = root.querySelector<HTMLButtonElement>('[data-lang-toggle]');
+    const menu = root.querySelector<HTMLElement>('[data-lang-menu]');
+
+    function open() {
+      menu?.removeAttribute('hidden');
+      toggle?.setAttribute('aria-expanded', 'true');
+      root?.classList.add('open');
+    }
+    function close() {
+      menu?.setAttribute('hidden', '');
+      toggle?.setAttribute('aria-expanded', 'false');
+      root?.classList.remove('open');
+    }
+    function toggleMenu() {
+      if (menu?.hasAttribute('hidden')) open(); else close();
+    }
+
+    toggle?.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(); });
+    document.addEventListener('click', (e) => {
+      if (!root.contains(e.target as Node)) close();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') close();
+    });
+
+    root.querySelectorAll<HTMLAnchorElement>('[data-lang]').forEach((a) => {
+      a.addEventListener('click', () => {
+        const locale = a.getAttribute('data-lang');
+        if (locale) setStoredLocale(locale);
+      });
+    });
+  }
+</script>
+
+<style>
+  .lang-switcher { position: relative; }
+  .lang-toggle {
+    display: flex; align-items: center; gap: 0.25rem;
+    height: 34px; padding: 0 0.5rem;
+    font-size: 0.8rem; color: #666;
+    transition: color 0.3s var(--ease-out-expo);
+  }
+  :global([data-theme='dark']) .lang-toggle { color: #999; }
+  .lang-toggle:hover { color: var(--accent); }
+  .lang-current { font-weight: 600; letter-spacing: 0.05em; }
+  .lang-menu {
+    position: absolute; top: calc(100% + 0.5rem); right: 0;
+    min-width: 160px; padding: 0.35rem;
+    background: #fff; border: 1px solid #ddd;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    z-index: 200;
+    list-style: none;
+    animation: lang-menu-in 0.2s var(--ease-out-expo);
+  }
+  :global([data-theme='dark']) .lang-menu { background: #181818; border-color: #222; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+  .lang-menu[hidden] { display: none; }
+  .lang-item {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.5rem 0.65rem; font-size: 0.85rem; color: #666;
+    transition: background 0.2s var(--ease-out-expo), color 0.2s var(--ease-out-expo);
+  }
+  :global([data-theme='dark']) .lang-item { color: #999; }
+  .lang-item:hover { background: #f5f5f5; color: var(--accent); }
+  :global([data-theme='dark']) .lang-item:hover { background: #1a1a1a; }
+  .lang-item.active { color: var(--accent); font-weight: 600; }
+  .lang-code { font-weight: 600; min-width: 1.5em; }
+  .lang-name { font-size: 0.8rem; }
+  @keyframes lang-menu-in {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>

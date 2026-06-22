@@ -1,4 +1,14 @@
-<button class="back-to-top" data-back-to-top aria-label="Back to top">
+---
+import type { Locale } from '@/i18n/config';
+
+export interface Props {
+  t?: ((key: string, args?: Record<string, string | number>) => string) | null;
+}
+const { t = null } = Astro.props;
+const tt = (key: string, fallback: string) => t ? t(key) : fallback;
+---
+
+<button class="back-to-top" data-back-to-top aria-label={tt('common.backHome', 'Back to top')}>
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
     <path d="m18 15-6-6-6 6"/>
   </svg>

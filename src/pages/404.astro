@@ -1,7 +1,13 @@
 ---
+import { siteConfig } from '@/config';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import RedirectToLocale from '@/components/RedirectToLocale.astro';
+const enabled = siteConfig.i18n.enabled;
 ---
 
+{enabled && <RedirectToLocale title="404 - Page Not Found" toNotFound />}
+
+{enabled ? null : (
 <BaseLayout title="404 - Page Not Found">
   <div class="container not-found">
     <h1 class="code" data-split>404</h1>
@@ -25,3 +31,4 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
   @keyframes blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
   @media (max-width: 768px) { .code { font-size: 4rem; } }
 </style>
+)}

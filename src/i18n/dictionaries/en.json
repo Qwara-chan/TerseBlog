@@ -1,0 +1,79 @@
+{
+  "common": {
+    "search": "Search",
+    "settings": "Settings",
+    "menu": "Menu",
+    "close": "Close",
+    "backHome": "← Back home",
+    "by": "by"
+  },
+  "search": {
+    "placeholder": "Search posts…",
+    "empty": "Type to search…",
+    "noResults": "No results",
+    "hints": {
+      "navigate": "Navigate",
+      "open": "Open",
+      "close": "Close"
+    }
+  },
+  "sort": {
+    "newest": "Newest",
+    "oldest": "Oldest"
+  },
+  "pagination": {
+    "prev": "← Prev",
+    "next": "Next →"
+  },
+  "postCard": {
+    "min": "min",
+    "updated": "Updated"
+  },
+  "postNav": {
+    "previous": "← Previous",
+    "next": "Next →"
+  },
+  "post": {
+    "diffUpdated": "Updated on",
+    "diffToggleShow": "details →",
+    "diffToggleHide": "hide ↑",
+    "diffDetailsTpl": "Originally published on {original}. Latest revision: {updated}."
+  },
+  "toc": {
+    "contents": "Contents"
+  },
+  "home": {
+    "postsCountTpl": "{n} posts",
+    "tagsLabel": "Tags"
+  },
+  "archive": {
+    "empty": "No posts yet."
+  },
+  "about": {
+    "title": "About",
+    "intro": "Built with",
+    "astro": "Astro",
+    "featureList": "Markdown content, LaTeX math, full-text search, dark mode, RSS feed, and more."
+  },
+  "notFound": {
+    "msg": "This page doesn't exist."
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "fontSize": "Font Size",
+    "sizeSmall": "Small",
+    "sizeMedium": "Medium",
+    "sizeLarge": "Large",
+    "contentWidth": "Content Width",
+    "widthNarrow": "Narrow",
+    "widthNormal": "Normal",
+    "widthWide": "Wide",
+    "font": "Font",
+    "fontSans": "Sans",
+    "fontSerif": "Serif",
+    "toc": "Table of Contents",
+    "tocShow": "Show",
+    "tocHide": "Hide"
+  }
+}

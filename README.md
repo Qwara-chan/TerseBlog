@@ -1,6 +1,6 @@
 # TerseBlog
 
-A modern static blog built with [Astro](https://astro.build). Markdown content, LaTeX math, full-text search, dark mode, RSS, and a settings panel for personalized reading.
+A modern static blog built with [Astro](https://astro.build). Markdown content, LaTeX math, full-text search, dark mode, RSS, multi-language support, and a settings panel for personalized reading.
 
 🔗 **Live Demo**: [blog.qwara.top](https://blog.qwara.top)
 
@@ -12,13 +12,14 @@ A modern static blog built with [Astro](https://astro.build). Markdown content, 
 
 - 📝 **Markdown** — Write posts in Markdown with Frontmatter
 - 📐 **LaTeX Math** — KaTeX integration for inline and display math
+- 🌐 **Multi-language** — UI and content i18n (en / zh-CN / zh-TW / ja), toggleable
 - 🔍 **Full-text Search** — Build-time search index, client-side Fuse.js instant search
 - 🌓 **Dark Mode** — Light / Dark / System three modes
-- ⚙️ **Settings Panel** — Font size, content width, font family, TOC visibility
+- ⚙️ **Settings Panel** — Font size, content width, font family, TOC visibility, language
 - 📑 **Table of Contents** — Sidebar TOC with scroll-spy highlighting
 - ⏱ **Reading Time** — Auto-estimate for mixed CJK + English content
 - 🏷 **Tag System** — Tag categorization and tag cloud
-- 📡 **RSS Feed** — Auto-generated RSS
+- 📡 **RSS Feed** — Per-locale auto-generated RSS
 - 🗺 **Sitemap** — Auto-generated sitemap
 - 📱 **Responsive** — Desktop and mobile friendly
 - 🔄 **View Transitions** — Built-in page transition animations
@@ -43,6 +44,22 @@ npm run build
 npm run preview
 ```
 
+## Multi-language (i18n)
+
+i18n is enabled by default. You can toggle it at any time:
+
+```bash
+npm run i18n          # View current status
+npm run i18n:on       # Enable i18n
+npm run i18n:off      # Disable i18n (single-locale mode)
+```
+
+When enabled, 4 locales are served under URL prefixes: `/en/` `/zh-CN/` `/zh-TW/` `/ja/`. The root path `/` auto-detects browser language.
+
+Post translations live in `src/posts/<locale>/`. If a translation is missing for a given locale, it falls back to the default locale (`zh-CN`).
+
+UI text (search, settings, pagination, etc.) is translated via dictionary files in `src/i18n/dictionaries/`. See `docs/configuration.md` for details.
+
 ## Project Structure
 
 ```
@@ -51,7 +68,16 @@ TerseBlog/
 ├── tsconfig.json
 ├── package.json
 ├── src/
-│   ├── config.ts              # Site configuration
+│   ├── config.ts              # Site configuration (including i18n)
+│   ├── i18n/
+│   │   ├── config.ts          # Locale resolver, path helpers
+│   │   ├── load.ts            # Server-side dictionary loader
+│   │   ├── runtime.ts         # Client-side i18n runtime
+│   │   └── dictionaries/      # UI text translations
+│   │       ├── en.json
+│   │       ├── zh-CN.json
+│   │       ├── zh-TW.json
+│   │       └── ja.json
 │   ├── layouts/
 │   │   └── BaseLayout.astro   # Base layout
 │   ├── components/
@@ -62,21 +88,32 @@ TerseBlog/
 │   │   ├── TOC.astro
 │   │   ├── Search.astro
 │   │   ├── SettingsPanel.astro
+│   │   ├── LangSwitcher.astro # Language switcher
 │   │   ├── BackToTop.astro
 │   │   ├── MobileMenu.astro
 │   │   ├── SortToggle.astro
 │   │   ├── DiffViewer.astro
 │   │   └── ExternalLink.astro
 │   ├── pages/
-│   │   ├── index.astro
-│   │   ├── posts/[...slug].astro
-│   │   ├── tags/index.astro
-│   │   ├── tags/[tag].astro
+│   │   ├── index.astro        # Root redirect (i18n on) / home (i18n off)
+│   │   ├── [lang]/            # Locale-aware pages (i18n on)
+│   │   │   ├── index.astro
+│   │   │   ├── about.astro
+│   │   │   ├── archive.astro
+│   │   │   ├── 404.astro
+│   │   │   ├── rss.xml.ts
+│   │   │   ├── search-index.json.ts
+│   │   │   ├── posts/[...slug].astro
+│   │   │   └── tags/
+│   │   │       ├── index.astro
+│   │   │       └── [tag].astro
+│   │   ├── posts/[...slug].astro  # Single-locale fallback (i18n off)
+│   │   ├── tags/                  # Single-locale fallback (i18n off)
 │   │   ├── archive.astro
 │   │   ├── about.astro
 │   │   ├── 404.astro
-│   │   ├── search-index.json.ts
-│   │   └── rss.xml.ts
+│   │   ├── rss.xml.ts
+│   │   └── search-index.json.ts
 │   ├── lib/
 │   │   ├── content.ts
 │   │   ├── utils.ts
@@ -85,7 +122,11 @@ TerseBlog/
 │   ├── styles/
 │   │   ├── global.css
 │   │   └── interactivity.css
-│   └── posts/                 # Blog posts (Markdown)
+│   └── posts/                 # Blog posts (locale subdirectories)
+│       ├── en/
+│       ├── zh-CN/
+│       ├── zh-TW/
+│       └── ja/
 └── public/                    # Static assets
 ```
 
@@ -140,7 +181,7 @@ If you created your repo from this template, you can pull in upstream updates at
 
 ## TerseBlog
 
-基于 [Astro](https://astro.build) 构建的现代化静态博客，支持 Markdown、LaTeX 数学公式、全文搜索、暗色模式、RSS 订阅，内置设置面板可个性化调整字体大小、内容宽度等。
+基于 [Astro](https://astro.build) 构建的现代化静态博客，支持 Markdown、LaTeX 数学公式、全文搜索、暗色模式、RSS 订阅、多语言切换，内置设置面板可个性化调整字体大小、内容宽度等。
 
 🔗 **示例站点**: [blog.qwara.top](https://blog.qwara.top)
 
@@ -148,13 +189,14 @@ If you created your repo from this template, you can pull in upstream updates at
 
 - 📝 **Markdown** — Markdown 编写文章，支持 Frontmatter
 - 📐 **LaTeX 数学公式** — KaTeX 集成，行内和展示公式
+- 🌐 **多语言** — 界面与文章 i18n（en / zh-CN / zh-TW / ja），可随时开关
 - 🔍 **全文搜索** — 构建时生成索引，Fuse.js 客户端即时搜索
 - 🌓 **暗色模式** — 亮色/暗色/跟随系统三种模式
-- ⚙️ **设置面板** — 字体大小、内容宽度、字体切换、TOC 显隐
+- ⚙️ **设置面板** — 字体大小、内容宽度、字体切换、TOC 显隐、语言
 - 📑 **目录导航** — 侧边目录，滚动高亮
 - ⏱ **阅读时长** — 中英文混合内容自动估算
 - 🏷 **标签系统** — 文章标签分类与标签云
-- 📡 **RSS 订阅** — 自动生成 RSS Feed
+- 📡 **RSS 订阅** — 每种语言独立 RSS Feed
 - 📱 **响应式设计** — 适配桌面和移动端
 - 🔄 **页面过渡动画** — 内置 View Transitions API
 
@@ -180,6 +222,18 @@ npm run build
 # 5. 预览构建结果
 npm run preview
 ```
+
+### 多语言开关
+
+```bash
+npm run i18n          # 查看当前状态
+npm run i18n:on       # 开启多语言
+npm run i18n:off      # 关闭多语言（单语言模式）
+```
+
+开启后 4 种语言分别用 URL 前缀访问：`/en/` `/zh-CN/` `/zh-TW/` `/ja/`。根路径 `/` 自动探测浏览器语言跳转。
+
+文章翻译放在 `src/posts/<语种>/` 目录下。缺译时自动回退到默认语种（`zh-CN`）。
 
 ### 部署
 

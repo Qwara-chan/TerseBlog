@@ -1,0 +1,79 @@
+{
+  "common": {
+    "search": "検索",
+    "settings": "設定",
+    "menu": "メニュー",
+    "close": "閉じる",
+    "backHome": "← ホームへ戻る",
+    "by": "著者"
+  },
+  "search": {
+    "placeholder": "記事を検索…",
+    "empty": "キーワードを入力してください…",
+    "noResults": "結果なし",
+    "hints": {
+      "navigate": "移動",
+      "open": "開く",
+      "close": "閉じる"
+    }
+  },
+  "sort": {
+    "newest": "新しい順",
+    "oldest": "古い順"
+  },
+  "pagination": {
+    "prev": "← 前へ",
+    "next": "次へ →"
+  },
+  "postCard": {
+    "min": "分",
+    "updated": "更新済み"
+  },
+  "postNav": {
+    "previous": "← 前の記事",
+    "next": "次の記事 →"
+  },
+  "post": {
+    "diffUpdated": "更新日",
+    "diffToggleShow": "詳細 →",
+    "diffToggleHide": "閉じる ↑",
+    "diffDetailsTpl": "初公開: {original}。最新改訂: {updated}。"
+  },
+  "toc": {
+    "contents": "目次"
+  },
+  "home": {
+    "postsCountTpl": "{n} 件",
+    "tagsLabel": "タグ"
+  },
+  "archive": {
+    "empty": "記事はまだありません。"
+  },
+  "about": {
+    "title": "概要",
+    "intro": "このサイトは",
+    "astro": "Astro",
+    "featureList": "で構築されており、Markdown、LaTeX 数式、フルテキスト検索、ダークモード、RSS フィードなどの機能を備えています。"
+  },
+  "notFound": {
+    "msg": "ページが見つかりません。"
+  },
+  "settings": {
+    "title": "設定",
+    "language": "言語",
+    "fontSize": "文字サイズ",
+    "sizeSmall": "小",
+    "sizeMedium": "中",
+    "sizeLarge": "大",
+    "contentWidth": "コンテンツ幅",
+    "widthNarrow": "狭",
+    "widthNormal": "標準",
+    "widthWide": "広",
+    "font": "フォント",
+    "fontSans": "サンセリフ",
+    "fontSerif": "セリフ",
+    "toc": "目次",
+    "tocShow": "表示",
+    "tocHide": "非表示"
+  }
+}

@@ -1,0 +1,59 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PostCard from '@/components/PostCard.astro';
+import { getAllPostsInLocale, getPostsByTagInLocale, paginatePosts, getAllSlugs } from '@/lib/content';
+import { getDictionary, makeT } from '@/i18n/load';
+import { LOCALES, isLocale, prefixFor, DEFAULT_LOCALE } from '@/i18n/config';
+import { siteConfig } from '@/config';
+import type { Locale } from '@/i18n/config';
+
+export async function getStaticPaths() {
+  if (!siteConfig.i18n.enabled) return [];
+  const allSlugs = getAllSlugs();
+  const paths: any[] = [];
+  for (const locale of LOCALES) {
+    const posts = getAllPostsInLocale(locale);
+    const tags = [...new Set(posts.flatMap(p => p.tags.map(t => t.toLowerCase())))];
+    for (const tag of tags) {
+      paths.push({ params: { lang: locale, tag }, props: { tag, locale } });
+    }
+  }
+  return paths;
+}
+
+const { tag, locale } = Astro.props as { tag: string; locale: Locale };
+const { lang } = Astro.params;
+if (!isLocale(lang as string) || !isLocale(locale)) {
+  return new Response('Not found', { status: 404 });
+}
+const currentLocale = locale;
+
+const t = makeT(getDictionary(currentLocale));
+const posts = getPostsByTagInLocale(tag, currentLocale);
+const url = new URL(Astro.request.url);
+const currentPage = Math.max(1, parseInt(url.searchParams.get('page') || '1') || 1);
+const { items, totalPages } = paginatePosts(posts, currentPage, siteConfig.content.postsPerPage);
+const basePath = `/${prefixFor(currentLocale)}/tags/${tag}`;
+---
+
+<BaseLayout title={`Tag: ${tag}`} description={`Posts tagged with ${tag}`} lang={currentLocale} currentPath={Astro.url.pathname}>
+  <div class="container">
+    <h1 class="page-title"># {tag}<span class="count">({posts.length})</span></h1>
+    <div class="post-list">
+      {items.map(post => (
+        <PostCard slug={post.slug} title={post.title} date={post.date}
+          description={post.description} tags={post.tags}
+          readingTime={post.readingTime} updated={post.updated}
+          t={t} currentLocale={currentLocale} />
+      ))}
+    </div>
+    {totalPages > 1 && <a href={`${basePath}?page=${currentPage + 1}`} class="more">More →</a>}
+  </div>
+</BaseLayout>
+
+<style>
+  .page-title { font-family: var(--font-family-display); font-size: 1.4rem; margin: 2rem 0 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
+  .count { font-weight: 400; color: #bbb; margin-left: 0.4rem; font-size: 0.9rem; }
+  .more { display: inline-block; margin-top: 1.5rem; font-size: 0.9rem; color: #888; transition: color 0.25s var(--ease-out-expo), transform 0.25s var(--ease-spring); }
+  .more:hover { color: var(--accent); transform: translateX(3px); }
+</style>

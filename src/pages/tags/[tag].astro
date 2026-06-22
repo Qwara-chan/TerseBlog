@@ -1,23 +1,29 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import PostCard from '@/components/PostCard.astro';
-import { getAllPosts, getPostsByTag, paginatePosts } from '@/lib/content';
+import { getAllPosts, paginatePosts } from '@/lib/content';
 import { siteConfig } from '@/config';
+import RedirectToLocale from '@/components/RedirectToLocale.astro';
+const enabled = siteConfig.i18n.enabled;
 
 export async function getStaticPaths() {
-  const allPosts = getAllPosts(import.meta.glob('../../posts/*.md', { eager: true }));
+  if (siteConfig.i18n.enabled) return [];
+  const allPosts = getAllPosts(import.meta.glob('../../posts/zh-CN/*.md', { eager: true }));
   const tags = [...new Set(allPosts.flatMap(p => p.tags.map(t => t.toLowerCase())))];
-  return tags.map(tag => ({ params: { tag }, props: { tag } }));
+  return tags.map(tag => ({ params: { tag } }));
 }
 
-const { tag } = Astro.props;
-const allPosts = getAllPosts(import.meta.glob('../../posts/*.md', { eager: true }));
-const posts = getPostsByTag(tag, allPosts);
+const { tag } = Astro.params;
+const allPosts = getAllPosts(import.meta.glob('../../posts/zh-CN/*.md', { eager: true }));
+const posts = allPosts.filter(p => p.tags.some(t => t.toLowerCase() === tag));
 const url = new URL(Astro.request.url);
 const currentPage = Math.max(1, parseInt(url.searchParams.get('page') || '1') || 1);
 const { items, totalPages } = paginatePosts(posts, currentPage, siteConfig.content.postsPerPage);
 ---
 
+{enabled && <RedirectToLocale title={`Tag: ${tag}`} rest={`tags/${tag}`} preserveQueryAndHash />}
+
+{enabled ? null : (
 <BaseLayout title={`Tag: ${tag}`} description={`Posts tagged with ${tag}`}>
   <div class="container">
     <h1 class="page-title"># {tag}<span class="count">({posts.length})</span></h1>
@@ -38,3 +44,4 @@ const { items, totalPages } = paginatePosts(posts, currentPage, siteConfig.conte
   .more { display: inline-block; margin-top: 1.5rem; font-size: 0.9rem; color: #888; transition: color 0.25s var(--ease-out-expo), transform 0.25s var(--ease-spring); }
   .more:hover { color: var(--accent); transform: translateX(3px); }
 </style>
+)}

@@ -1,29 +1,55 @@
 ---
 import { formatDate } from '@/lib/utils';
-export interface Props { originalDate: string; updatedDate?: string; }
-const { originalDate, updatedDate } = Astro.props;
+import type { Locale } from '@/i18n/config';
+
+export interface Props {
+  originalDate: string; updatedDate?: string;
+  t?: ((key: string, args?: Record<string, string | number>) => string) | null;
+  currentLocale?: Locale;
+}
+const { originalDate, updatedDate, t = null, currentLocale } = Astro.props;
 const hasUpdate = updatedDate && updatedDate !== originalDate;
+const tt = (key: string, fallback: string, args?: Record<string, string | number>) => t ? t(key, args) : fallback;
+const showLabel = tt('post.diffToggleShow', 'details →');
+const hideLabel = tt('post.diffToggleHide', 'hide ↑');
+const detailsTpl = tt('post.diffDetailsTpl', 'Originally published on {original}. Latest revision: {updated}.', {
+  original: formatDate(originalDate, currentLocale),
+  updated: formatDate(updatedDate || originalDate, currentLocale),
+});
 ---
 
 {hasUpdate && (
   <div class="diff-viewer">
     <p class="diff-text">
-      Updated on <time datetime={updatedDate}>{formatDate(updatedDate)}</time>
-      <button class="diff-toggle" data-diff-toggle>details →</button>
+      <span data-i18n="post.diffUpdated">{tt('post.diffUpdated', 'Updated on')}</span> <time datetime={updatedDate}>{formatDate(updatedDate, currentLocale)}</time>
+      <button class="diff-toggle" data-diff-toggle data-show-label={showLabel} data-hide-label={hideLabel}>{showLabel}</button>
     </p>
     <div class="diff-details" data-diff-details hidden>
-      <p>Originally published on {formatDate(originalDate)}. Latest revision: {formatDate(updatedDate)}.</p>
+      <p>{detailsTpl}</p>
     </div>
   </div>
 )}
 
 <script>
-  const toggle = document.querySelector('[data-diff-toggle]');
+  import { tFor, getStoredLocale, type Locale } from '@/i18n/runtime';
+  import { DEFAULT_LOCALE, isLocale } from '@/i18n/config';
+
+  function getLocale(): Locale {
+    const stored = getStoredLocale();
+    if (stored) return stored;
+    const path = location.pathname.split('/').filter(Boolean)[0];
+    return (path && isLocale(path) ? path : DEFAULT_LOCALE) as Locale;
+  }
+
+  const toggle = document.querySelector('[data-diff-toggle]') as HTMLElement | null;
   const details = document.querySelector('[data-diff-details]');
   toggle?.addEventListener('click', () => {
     const hidden = details?.hasAttribute('hidden');
-    if (hidden) { details?.removeAttribute('hidden'); toggle!.textContent = 'hide ↑'; }
-    else { details?.setAttribute('hidden', ''); toggle!.textContent = 'details →'; }
+    const locale = getLocale();
+    const show = tFor(locale, 'post.diffToggleShow', undefined) || 'details →';
+    const hide = tFor(locale, 'post.diffToggleHide', undefined) || 'hide ↑';
+    if (hidden) { details?.removeAttribute('hidden'); toggle.textContent = hide; }
+    else { details?.setAttribute('hidden', ''); toggle.textContent = show; }
   });
 </script>
 

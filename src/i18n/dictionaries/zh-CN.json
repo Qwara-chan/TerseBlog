@@ -1,0 +1,79 @@
+{
+  "common": {
+    "search": "搜索",
+    "settings": "设置",
+    "menu": "菜单",
+    "close": "关闭",
+    "backHome": "← 返回首页",
+    "by": "作者"
+  },
+  "search": {
+    "placeholder": "搜索文章…",
+    "empty": "输入关键词搜索…",
+    "noResults": "无结果",
+    "hints": {
+      "navigate": "导航",
+      "open": "打开",
+      "close": "关闭"
+    }
+  },
+  "sort": {
+    "newest": "最新",
+    "oldest": "最早"
+  },
+  "pagination": {
+    "prev": "← 上一页",
+    "next": "下一页 →"
+  },
+  "postCard": {
+    "min": "分钟",
+    "updated": "已更新"
+  },
+  "postNav": {
+    "previous": "← 上一篇",
+    "next": "下一篇 →"
+  },
+  "post": {
+    "diffUpdated": "更新于",
+    "diffToggleShow": "详情 →",
+    "diffToggleHide": "收起 ↑",
+    "diffDetailsTpl": "最初发布于 {original}。最新修订于 {updated}。"
+  },
+  "toc": {
+    "contents": "目录"
+  },
+  "home": {
+    "postsCountTpl": "{n} 篇文章",
+    "tagsLabel": "标签"
+  },
+  "archive": {
+    "empty": "暂无文章。"
+  },
+  "about": {
+    "title": "关于",
+    "intro": "由",
+    "astro": "Astro",
+    "featureList": "构建，支持 Markdown、LaTeX 公式、全文搜索、暗色模式、RSS 订阅等功能。"
+  },
+  "notFound": {
+    "msg": "页面不存在。"
+  },
+  "settings": {
+    "title": "设置",
+    "language": "语言",
+    "fontSize": "字号",
+    "sizeSmall": "小",
+    "sizeMedium": "中",
+    "sizeLarge": "大",
+    "contentWidth": "内容宽度",
+    "widthNarrow": "窄",
+    "widthNormal": "标准",
+    "widthWide": "宽",
+    "font": "字体",
+    "fontSans": "无衬线",
+    "fontSerif": "衬线",
+    "toc": "目录",
+    "tocShow": "显示",
+    "tocHide": "隐藏"
+  }
+}

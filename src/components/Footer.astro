@@ -1,6 +1,16 @@
 ---
 import { siteConfig } from '@/config';
+import { prefixFor, type Locale } from '@/i18n/config';
+
+export interface Props {
+  t?: ((key: string, args?: Record<string, string | number>) => string) | null;
+  currentLocale?: Locale;
+  currentPath?: string;
+}
+const { t = null, currentLocale, currentPath = '/' } = Astro.props;
 const year = new Date().getFullYear();
+
+const rssHref = currentLocale ? `/${prefixFor(currentLocale)}/rss.xml` : '/rss.xml';
 ---
 
 <footer class="site-footer">
@@ -18,7 +28,7 @@ const year = new Date().getFullYear();
       {siteConfig.author.social.twitter && (
         <a href={siteConfig.author.social.twitter} target="_blank" rel="noopener noreferrer">Twitter</a>
       )}
-      <a href="/rss.xml" target="_blank">RSS</a>
+      <a href={rssHref} target="_blank">RSS</a>
     </div>
   </div>
 </footer>

@@ -1,10 +1,13 @@
 ---
 import { siteConfig } from '@/config';
+import { isLocale, DEFAULT_LOCALE, prefixFor, type Locale } from '@/i18n/config';
+import { getDictionary, makeT } from '@/i18n/load';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import BackToTop from '@/components/BackToTop.astro';
 import Search from '@/components/Search.astro';
 import SettingsPanel from '@/components/SettingsPanel.astro';
+import LangSwitcher from '@/components/LangSwitcher.astro';
 import '@/styles/global.css';
 import '@/styles/interactivity.css';
 
@@ -12,28 +15,55 @@ export interface Props {
   title: string;
   description?: string;
   canonical?: string;
+  lang?: Locale;
 }
 
-const { title, description, canonical } = Astro.props;
-const pageTitle = title ? `${title} | ${siteConfig.title}` : siteConfig.title;
+const { title, description, canonical, lang } = Astro.props;
+const enabled = siteConfig.i18n.enabled;
+
+const currentLocale: Locale = enabled
+  ? (lang && isLocale(lang) ? lang : DEFAULT_LOCALE)
+  : DEFAULT_LOCALE;
+const t = enabled ? makeT(getDictionary(currentLocale)) : null;
+
+const navItems = siteConfig.nav;
+const localizedNav = enabled
+  ? navItems.map(item => ({ ...item, link: `/${prefixFor(currentLocale)}${item.link === '/' ? '' : item.link}` }))
+  : navItems;
+
+const siteTitle = siteConfig.title;
+const pageTitle = title ? `${title} | ${siteTitle}` : siteTitle;
 const pageDescription = description || siteConfig.description;
+const currentPath = Astro.url.pathname;
+const htmlLang = enabled ? currentLocale : siteConfig.language;
+const canonicalUrl = canonical || `${siteConfig.site}${currentPath}`;
+const menuLabel = enabled && t ? t('common.menu') : 'Menu';
 ---
 
 <!DOCTYPE html>
-<html lang={siteConfig.language}>
+<html lang={htmlLang}>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{pageTitle}</title>
   <meta name="description" content={pageDescription} />
-  <link rel="canonical" href={canonical || `${siteConfig.site}/`} />
+  <link rel="canonical" href={canonicalUrl} />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
   <!-- Open Graph -->
   <meta property="og:title" content={pageTitle} />
   <meta property="og:description" content={pageDescription} />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content={canonical || siteConfig.site} />
+  <meta property="og:url" content={canonicalUrl} />
+
+  {enabled && (
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: siteTitle,
+      inLanguage: currentLocale,
+    })} />
+  )}
 
   <!-- KaTeX CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
@@ -102,13 +132,9 @@ const pageDescription = description || siteConfig.description;
 
   <script is:inline>
     (function() {
-      // Mark JS available (gates reveal animations so no-JS still shows content)
       document.documentElement.classList.add('js');
-
-      // Disable transitions during page load to prevent FOUC
       document.documentElement.classList.add('disable-transitions');
 
-      // Theme
       function applyTheme() {
         var theme = localStorage.getItem('astro-blog-theme') || 'system';
         var resolved = theme === 'system'
@@ -134,13 +160,11 @@ const pageDescription = description || siteConfig.description;
         document.addEventListener('astro:after-swap', applyTheme);
       }
 
-      // TOC visibility
       var tocVisible = localStorage.getItem('astro-blog-toc-visible');
       if (tocVisible !== null) {
         document.documentElement.setAttribute('data-toc-visible', tocVisible);
       }
 
-      // Settings: font-size, content-width, font-family, toc-visible
       var settings = ['font-size', 'content-width', 'font-family', 'toc-visible'];
       var defaults = { 'font-size': 'medium', 'content-width': 'normal', 'font-family': 'sans', 'toc-visible': 'true' };
       for (var i = 0; i < settings.length; i++) {
@@ -149,34 +173,33 @@ const pageDescription = description || siteConfig.description;
         if (val) document.documentElement.setAttribute('data-' + key, val);
       }
 
-      // Re-enable transitions after a microtask
       requestAnimationFrame(function() {
         document.documentElement.classList.remove('disable-transitions');
       });
     })();
   </script>
 </head>
-<body>
-  <Header menuItems={siteConfig.nav} />
-  <Search />
+<body data-locale={currentLocale}>
+  <Header menuItems={localizedNav} currentLocale={currentLocale} currentPath={currentPath} t={t} />
+  <Search t={t} />
 
   <main>
     <slot />
   </main>
 
-  <Footer />
-  <BackToTop />
+  <Footer t={t} currentLocale={currentLocale} currentPath={currentPath} />
 
-  <SettingsPanel />
+  <BackToTop t={t} />
+  <SettingsPanel t={t} currentLocale={currentLocale} />
 
-  <!-- Mobile Menu Overlay & Drawer (body level, avoids header's backdrop-filter issue) -->
+  <!-- Mobile Menu Overlay & Drawer -->
   <div class="mobile-overlay" data-mobile-overlay hidden></div>
   <div class="mobile-drawer" data-mobile-drawer>
     <div class="mobile-drawer-header">
-      <span class="mobile-drawer-title">Menu</span>
+      <span class="mobile-drawer-title">{menuLabel}</span>
       <button class="mobile-drawer-close" data-mobile-close aria-label="Close menu">✕</button>
     </div>
-    {siteConfig.nav.map((item) => (
+    {localizedNav.map((item) => (
       <a href={item.link} class="mobile-link" data-mobile-link>{item.text}</a>
     ))}
   </div>
@@ -210,13 +233,12 @@ const pageDescription = description || siteConfig.description;
     })();
   </script>
 
-  <!-- Global avant-garde motion: char-split, clip reveal, magnetic hover, active nav -->
+  <!-- Global avant-garde motion -->
   <script is:inline>
     (function () {
       function initMotion() {
         var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        // Per-character entrance
         var splits = document.querySelectorAll('[data-split]');
         splits.forEach(function (el) {
           if (el.dataset.splitDone) return;
@@ -233,7 +255,6 @@ const pageDescription = description || siteConfig.description;
           el.dataset.splitDone = '1';
         });
 
-        // Staggered clip-path reveal — guaranteed rAF execution
         requestAnimationFrame(function () {
           var reveals = document.querySelectorAll('[data-reveal]:not(.revealed)');
           reveals.forEach(function (el, i) {
@@ -242,7 +263,6 @@ const pageDescription = description || siteConfig.description;
           });
         });
 
-        // Magnetic hover (skip when reduced motion)
         if (!reduce) {
           var mags = document.querySelectorAll('[data-magnetic]');
           mags.forEach(function (el) {
@@ -258,7 +278,6 @@ const pageDescription = description || siteConfig.description;
           });
         }
 
-        // Active nav marker
         var path = location.pathname.replace(/\/+$/, '') || '/';
         document.querySelectorAll('.nav-link').forEach(function (a) {
           var href = (a.getAttribute('href') || '').replace(/\/+$/, '') || '/';
@@ -272,5 +291,19 @@ const pageDescription = description || siteConfig.description;
       document.addEventListener('astro:page-load', initMotion);
     })();
   </script>
+
+  {enabled && (
+    <script>
+      import { applyI18n } from '@/i18n/runtime';
+      import { isLocale, DEFAULT_LOCALE, type Locale } from '@/i18n/config';
+      function bootI18n() {
+        const seg = location.pathname.split('/').filter(Boolean)[0];
+        const locale: Locale = (seg && isLocale(seg)) ? seg : DEFAULT_LOCALE;
+        applyI18n(locale);
+      }
+      bootI18n();
+      document.addEventListener('astro:page-load', bootI18n);
+    </script>
+  )}
 </body>
 </html>

@@ -2,7 +2,7 @@ export const siteConfig = {
   title: 'TerseBlog',
   description: 'A minimalist blog in black & white',
   site: 'https://blog.qwara.top',
-  language: 'zh-CN',
+  language: 'en',
 
   author: {
     name: 'Your Name',
@@ -42,6 +42,19 @@ export const siteConfig = {
     enabled: true,
     filename: 'rss.xml',
   },
+
+  i18n: {
+    enabled: true,
+    defaultLocale: 'zh-CN',
+    locales: ['en', 'zh-CN', 'zh-TW', 'ja'] as const,
+    prefixMap: {
+      'en': 'en',
+      'zh-CN': 'zh-CN',
+      'zh-TW': 'zh-TW',
+      'ja': 'ja',
+    } as Record<string, string>,
+  },
 } as const;
 
 export type SiteConfig = typeof siteConfig;
+export type Locale = typeof siteConfig.i18n.locales[number];

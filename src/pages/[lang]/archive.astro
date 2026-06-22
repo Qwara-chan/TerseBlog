@@ -1,0 +1,70 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getAllPostsInLocale } from '@/lib/content';
+import { groupPostsByYear } from '@/lib/utils';
+import { getDictionary, makeT } from '@/i18n/load';
+import { LOCALES, isLocale, prefixFor } from '@/i18n/config';
+import { siteConfig } from '@/config';
+import type { Locale } from '@/i18n/config';
+
+export async function getStaticPaths() {
+  if (!siteConfig.i18n.enabled) return [];
+  return LOCALES.map(lang => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params;
+if (!isLocale(lang as string)) {
+  return new Response('Not found', { status: 404 });
+}
+const currentLocale = lang as Locale;
+
+const t = makeT(getDictionary(currentLocale));
+const tt = (key: string, args?: Record<string, string | number>) => t(key, args);
+
+const allPosts = getAllPostsInLocale(currentLocale);
+const grouped = groupPostsByYear(allPosts);
+const fmtMonthDay = (d: string) => new Date(d).toLocaleDateString(currentLocale, { month: 'long', day: 'numeric' });
+---
+
+<BaseLayout title="Archive" description="All posts by year" lang={currentLocale} currentPath={Astro.url.pathname}>
+  <div class="container archive">
+    <h1 class="page-title" data-split data-i18n="archive.title">Archive</h1>
+    {allPosts.length === 0 ? (
+      <p class="empty" data-i18n="archive.empty">{tt('archive.empty')}</p>
+    ) : (
+      [...grouped.entries()].map(([year, posts]) => (
+        <section class="year-section" data-reveal>
+          <h2 class="year">{year}</h2>
+          <ul class="archive-list">
+            {posts.map((post: any) => (
+              <li class="archive-item">
+                <time class="archive-date" datetime={post.date}>
+                  {fmtMonthDay(post.date)}
+                </time>
+                <a href={`/${prefixFor(currentLocale)}/posts/${post.slug}`} class="archive-title">{post.title}</a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .archive { padding: 2rem 0; max-width: 600px; margin: 0 auto; }
+  .page-title { font-size: 1.8rem; margin-bottom: 2rem; }
+  .year-section { margin-bottom: 2rem; }
+  .year { font-family: var(--font-family-display); font-size: 1.3rem; margin-bottom: 0.75rem; font-weight: 700; letter-spacing: -0.02em; }
+  .archive-list { list-style: none; }
+  .archive-item {
+    display: flex; align-items: baseline; gap: 1rem;
+    padding: 0.4rem 0; border-bottom: 1px solid #eee;
+  }
+  :global([data-theme='dark']) .archive-item { border-color: #1a1a1a; }
+  .archive-date { flex-shrink: 0; width: 110px; font-size: 0.8rem; color: #999; }
+  .archive-title { font-size: 0.9rem; transition: color 0.25s var(--ease-out-expo), transform 0.25s var(--ease-spring); display: inline-block; }
+  .archive-title:hover { color: var(--accent); transform: translateX(3px); }
+  .empty { color: #888; text-align: center; padding: 3rem; }
+  @media (max-width: 768px) { .archive-item { flex-direction: column; gap: 0.1rem; } .archive-date { width: auto; } }
+</style>

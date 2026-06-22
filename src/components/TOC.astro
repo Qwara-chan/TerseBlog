@@ -1,12 +1,17 @@
 ---
 import type { HeadingItem } from '@/lib/types';
-export interface Props { headings: HeadingItem[]; maxDepth?: number; }
-const { headings, maxDepth = 3 } = Astro.props;
+export interface Props {
+  headings: HeadingItem[];
+  maxDepth?: number;
+  t?: ((key: string, args?: Record<string, string | number>) => string) | null;
+}
+const { headings, maxDepth = 3, t = null } = Astro.props;
+const tt = (key: string, fallback: string) => t ? t(key) : fallback;
 ---
 
 <aside class="sidebar-toc">
   <div class="toc-header">
-    <span class="toc-title">Contents</span>
+    <span class="toc-title" data-i18n="toc.contents">{tt('toc.contents', 'Contents')}</span>
   </div>
   <nav class="toc-nav">
     <ul class="toc-list">
@@ -29,7 +34,6 @@ const { headings, maxDepth = 3 } = Astro.props;
 </aside>
 
 <script>
-  // Scroll-spy: highlight the current section in TOC
   const links = document.querySelectorAll('.toc-link');
   const targets = [...links].map(l => {
     const id = l.getAttribute('href')?.slice(1);

@@ -1,82 +1,104 @@
 ---
-// Settings panel — slide-out drawer with personalization controls
-// Gear button is in Header.astro; this component provides the overlay + drawer.
-// Settings stored in localStorage, applied via data-* attributes on <html>
+import { LOCALES, LOCALE_SHORT } from '@/i18n/config';
+import { siteConfig } from '@/config';
+import type { Locale } from '@/i18n/config';
+
+export interface Props {
+  t?: ((key: string, args?: Record<string, string | number>) => string) | null;
+  currentLocale?: Locale;
+}
+const { t = null, currentLocale = 'zh-CN' } = Astro.props;
+const enabled = siteConfig.i18n.enabled;
+const tt = (key: string, fallback: string, args?: Record<string, string | number>) => t ? t(key, args) : fallback;
 ---
 
 <!-- Settings overlay + drawer -->
 <div class="settings-overlay" data-settings-overlay hidden></div>
 <div class="settings-drawer" data-settings-drawer>
   <div class="settings-drawer-header">
-    <span class="settings-drawer-title">Settings</span>
-    <button class="settings-drawer-close" data-settings-close aria-label="Close settings">✕</button>
+    <span class="settings-drawer-title">{tt('settings.title', 'Settings')}</span>
+    <button class="settings-drawer-close" data-settings-close aria-label={tt('common.close', 'Close')}>✕</button>
   </div>
 
   <div class="settings-body">
+    {enabled && (
+      <div class="settings-group">
+        <span class="settings-label">{tt('settings.language', 'Language')}</span>
+        <div class="settings-options">
+          {LOCALES.map((l) => (
+            <label class="settings-option">
+              <input type="radio" name="locale" value={l} data-setting="locale" checked={l === currentLocale} />
+              <span>{LOCALE_SHORT[l]}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+    )}
+
     <!-- Font Size -->
     <div class="settings-group">
-      <span class="settings-label">Font Size</span>
+      <span class="settings-label">{tt('settings.fontSize', 'Font Size')}</span>
       <div class="settings-options">
         <label class="settings-option">
           <input type="radio" name="font-size" value="small" data-setting="font-size" />
-          <span>Small</span>
+          <span>{tt('settings.sizeSmall', 'Small')}</span>
         </label>
         <label class="settings-option">
           <input type="radio" name="font-size" value="medium" data-setting="font-size" checked />
-          <span>Medium</span>
+          <span>{tt('settings.sizeMedium', 'Medium')}</span>
         </label>
         <label class="settings-option">
           <input type="radio" name="font-size" value="large" data-setting="font-size" />
-          <span>Large</span>
+          <span>{tt('settings.sizeLarge', 'Large')}</span>
         </label>
       </div>
     </div>
 
     <!-- Content Width -->
     <div class="settings-group">
-      <span class="settings-label">Content Width</span>
+      <span class="settings-label">{tt('settings.contentWidth', 'Content Width')}</span>
       <div class="settings-options">
         <label class="settings-option">
           <input type="radio" name="content-width" value="narrow" data-setting="content-width" />
-          <span>Narrow</span>
+          <span>{tt('settings.widthNarrow', 'Narrow')}</span>
         </label>
         <label class="settings-option">
           <input type="radio" name="content-width" value="normal" data-setting="content-width" checked />
-          <span>Normal</span>
+          <span>{tt('settings.widthNormal', 'Normal')}</span>
         </label>
         <label class="settings-option">
           <input type="radio" name="content-width" value="wide" data-setting="content-width" />
-          <span>Wide</span>
+          <span>{tt('settings.widthWide', 'Wide')}</span>
         </label>
       </div>
     </div>
 
     <!-- Font Family -->
     <div class="settings-group">
-      <span class="settings-label">Font</span>
+      <span class="settings-label">{tt('settings.font', 'Font')}</span>
       <div class="settings-options">
         <label class="settings-option">
           <input type="radio" name="font-family" value="sans" data-setting="font-family" checked />
-          <span>Sans</span>
+          <span>{tt('settings.fontSans', 'Sans')}</span>
         </label>
         <label class="settings-option">
           <input type="radio" name="font-family" value="serif" data-setting="font-family" />
-          <span>Serif</span>
+          <span>{tt('settings.fontSerif', 'Serif')}</span>
         </label>
       </div>
     </div>
 
     <!-- TOC Visibility -->
     <div class="settings-group">
-      <span class="settings-label">Table of Contents</span>
+      <span class="settings-label">{tt('settings.toc', 'Table of Contents')}</span>
       <div class="settings-options">
         <label class="settings-option">
           <input type="radio" name="toc-visible" value="true" data-setting="toc-visible" checked />
-          <span>Show</span>
+          <span>{tt('settings.tocShow', 'Show')}</span>
         </label>
         <label class="settings-option">
           <input type="radio" name="toc-visible" value="false" data-setting="toc-visible" />
-          <span>Hide</span>
+          <span>{tt('settings.tocHide', 'Hide')}</span>
         </label>
       </div>
     </div>
@@ -84,6 +106,7 @@
 </div>
 
 <script>
+  import { switchToLocale, isLocale, getStoredLocale } from '@/i18n/runtime';
   const SETTINGS = ['font-size', 'content-width', 'font-family', 'toc-visible'];
   const DEFAULTS: Record<string, string> = {
     'font-size': 'medium',
@@ -92,12 +115,10 @@
     'toc-visible': 'true',
   };
 
-  // ── Read a setting ──
   function getSetting(key: string): string {
     return localStorage.getItem(`astro-blog-${key}`) || DEFAULTS[key] || '';
   }
 
-  // ── Apply all settings to <html> ──
   function applySettings() {
     const html = document.documentElement;
     for (const key of SETTINGS) {
@@ -106,16 +127,21 @@
     }
   }
 
-  // ── Init: sync radio buttons with current values ──
   function syncRadios() {
     for (const key of SETTINGS) {
       const val = getSetting(key);
       const radios = document.querySelectorAll<HTMLInputElement>(`input[name="${key}"]`);
       radios.forEach(r => { r.checked = r.value === val; });
     }
+    // Sync the language radio to whatever is currently active (URL > localStorage).
+    const urlSeg = location.pathname.split('/').filter(Boolean)[0];
+    const currentLocale = (urlSeg && isLocale(urlSeg) ? urlSeg : null) ?? getStoredLocale();
+    if (currentLocale) {
+      const localeRadios = document.querySelectorAll<HTMLInputElement>('input[name="locale"]');
+      localeRadios.forEach(r => { r.checked = r.value === currentLocale; });
+    }
   }
 
-  // ── Panel open/close ──
   const overlay = document.querySelector('[data-settings-overlay]')!;
   const drawer = document.querySelector('[data-settings-drawer]')!;
 
@@ -139,28 +165,32 @@
     if (e.key === 'Escape' && drawer.classList.contains('open')) closePanel();
   });
 
-  // ── Handle setting changes ──
   drawer.addEventListener('change', (e) => {
     const input = e.target as HTMLInputElement;
     if (!input.matches('[data-setting]')) return;
     const key = input.name;
     const val = input.value;
+
+    if (key === 'locale') {
+      if (isLocale(val)) {
+        switchToLocale(val, location.pathname);
+      }
+      return;
+    }
+
     localStorage.setItem(`astro-blog-${key}`, val);
     document.documentElement.setAttribute(`data-${key}`, val);
 
-    // TOC visibility also updates the legacy key for backward compat
     if (key === 'toc-visible') {
       localStorage.setItem('astro-blog-toc-visible', val);
       document.documentElement.setAttribute('data-toc-visible', val);
     }
   });
 
-  // Apply on load
   applySettings();
 </script>
 
 <style>
-  /* ── Overlay ── */
   .settings-overlay {
     position: fixed; inset: 0;
     background: rgba(0,0,0,0.3);
@@ -170,7 +200,6 @@
   .settings-overlay:not([hidden]) { opacity: 1; pointer-events: auto; }
   .settings-overlay[hidden] { display: block; opacity: 0; pointer-events: none; }
 
-  /* ── Drawer ── */
   .settings-drawer {
     position: fixed; top: 0; right: 0; bottom: 0; width: 300px;
     background: #fff; z-index: 10001;
@@ -193,7 +222,6 @@
   }
   .settings-drawer-close:hover { color: #000; }
 
-  /* ── Settings groups ── */
   .settings-body { display: flex; flex-direction: column; gap: 1.25rem; }
   .settings-group { display: flex; flex-direction: column; gap: 0.5rem; }
   .settings-label {

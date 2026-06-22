@@ -5,9 +5,12 @@ import DiffViewer from '@/components/DiffViewer.astro';
 import { getAllPosts, getAdjacentPosts, generateTOC } from '@/lib/content';
 import { formatDate, estimateReadingTime } from '@/lib/utils';
 import { siteConfig } from '@/config';
+import RedirectToLocale from '@/components/RedirectToLocale.astro';
+const enabled = siteConfig.i18n.enabled;
 
 export async function getStaticPaths() {
-  const modules = import.meta.glob('../../posts/*.md', { eager: true });
+  if (siteConfig.i18n.enabled) return [];
+  const modules = import.meta.glob('../../posts/zh-CN/*.md', { eager: true });
   const posts = getAllPosts(modules);
   return Object.entries(modules).map(([path, mod]) => {
     const slug = path.split('/').pop()?.replace(/\.(md|mdx)$/, '') || '';
@@ -17,13 +20,16 @@ export async function getStaticPaths() {
   }).filter(Boolean);
 }
 
-const { post, Content } = Astro.props;
-const allPosts = getAllPosts(import.meta.glob('../../posts/*.md', { eager: true }));
+const { post, Content } = Astro.props as { post: any; Content: any };
+const allPosts = getAllPosts(import.meta.glob('../../posts/zh-CN/*.md', { eager: true }));
 const { prev, next } = getAdjacentPosts(post.slug, allPosts);
 const headings = generateTOC(post.content, siteConfig.content.tocMaxDepth);
 const readingTime = estimateReadingTime(post.content);
 ---
 
+{enabled && <RedirectToLocale title={post.title} rest={`posts/${post.slug}`} />}
+
+{enabled ? null : (
 <BaseLayout title={post.title} description={post.description} canonical={`${siteConfig.site}/posts/${post.slug}`}>
   <div class="container post-page">
     <div class="post-layout">
@@ -34,7 +40,7 @@ const readingTime = estimateReadingTime(post.content);
             <time datetime={post.date}>{formatDate(post.date)}</time>
             <span class="dot">·</span>
             <span>{readingTime} min</span>
-            {post.tags.length > 0 && <><span class="dot">·</span> {post.tags.map(t => <a href={`/tags/${t.toLowerCase()}`} class="tag">{t}</a>)}</>}
+            {post.tags.length > 0 && <><span class="dot">·</span> {post.tags.map((t: string) => <a href={`/tags/${t.toLowerCase()}`} class="tag">{t}</a>)}</>}
           </div>
           <hr class="accent-rule post-rule" />
         </header>
@@ -77,3 +83,4 @@ const readingTime = estimateReadingTime(post.content);
   .nav-card:hover .nav-title { color: var(--accent); }
   @media (max-width: 1024px) { .post-layout { flex-direction: column; } .post-title { font-size: 1.6rem; } .post-nav { flex-direction: column; } }
 </style>
+)}

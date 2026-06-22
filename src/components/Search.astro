@@ -1,10 +1,21 @@
+---
+import { prefixFor, type Locale } from '@/i18n/config';
+
+export interface Props {
+  t?: ((key: string, args?: Record<string, string | number>) => string) | null;
+  currentLocale?: Locale;
+}
+const { t = null, currentLocale } = Astro.props;
+const tt = (key: string, fallback: string) => t ? t(key) : fallback;
+---
+
 <div class="search-overlay" data-search-overlay hidden>
   <div class="search-modal">
     <div class="search-header">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
       </svg>
-      <input type="text" class="search-input" data-search-input placeholder="Search posts…" autocomplete="off" />
+      <input type="text" class="search-input" data-search-input placeholder={tt('search.placeholder', 'Search posts…')} autocomplete="off" />
       <button class="search-close" data-search-close aria-label="Close">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
@@ -13,45 +24,91 @@
     </div>
     <div class="search-results" data-search-results></div>
     <div class="search-hints">
-      <span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span>
-      <span><kbd>↵</kbd> Open</span>
-      <span><kbd>Esc</kbd> Close</span>
+      <span><kbd>↑</kbd><kbd>↓</kbd> <span data-i18n="search.hints.navigate">{tt('search.hints.navigate', 'Navigate')}</span></span>
+      <span><kbd>↵</kbd> <span data-i18n="search.hints.open">{tt('search.hints.open', 'Open')}</span></span>
+      <span><kbd>Esc</kbd> <span data-i18n="search.hints.close">{tt('search.hints.close', 'Close')}</span></span>
     </div>
   </div>
 </div>
 
 <script>
   import { searchEngine } from '@/lib/search';
+  import { tFor, getStoredLocale, type Locale } from '@/i18n/runtime';
+  import { DEFAULT_LOCALE, isLocale, prefixFor } from '@/i18n/config';
+  import { siteConfig } from '@/config';
+
+  function getLocale(): Locale {
+    const stored = getStoredLocale();
+    if (stored) return stored;
+    const path = location.pathname.split('/').filter(Boolean)[0];
+    return (path && isLocale(path) ? path : DEFAULT_LOCALE) as Locale;
+  }
+
+  function postHrefFor(slug: string): string {
+    if (siteConfig.i18n.enabled) {
+      return '/' + prefixFor(getLocale()) + '/posts/' + slug;
+    }
+    return '/posts/' + slug;
+  }
+
+  function dateLocaleTag(): string {
+    // Map our Locale to a BCP-47 tag suitable for toLocaleDateString.
+    const map: Record<string, string> = { 'en': 'en', 'zh-CN': 'zh-CN', 'zh-TW': 'zh-TW', 'ja': 'ja' };
+    return map[getLocale()] || 'en';
+  }
+
+  function emptyText() { return tFor(getLocale(), 'search.empty', undefined) || 'Type to search…'; }
+  function noResultsText() { return tFor(getLocale(), 'search.noResults', undefined) || 'No results'; }
+  function placeholderText() { return tFor(getLocale(), 'search.placeholder', undefined) || 'Search posts…'; }
+
   const overlay = document.querySelector('[data-search-overlay]');
-  const input = document.querySelector('[data-search-input]');
+  const input = document.querySelector('[data-search-input]') as HTMLInputElement | null;
   const results = document.querySelector('[data-search-results]');
   const closeBtn = document.querySelector('[data-search-close]');
   let idx = -1, timer;
 
   searchEngine.init();
 
-  function open() { overlay?.removeAttribute('hidden'); input?.focus(); document.body.style.overflow = 'hidden'; }
+  function open() {
+    overlay?.removeAttribute('hidden');
+    if (input) {
+      input.placeholder = placeholderText();
+      input.focus();
+    }
+    document.body.style.overflow = 'hidden';
+  }
   function close() { overlay?.setAttribute('hidden', ''); document.body.style.overflow = ''; idx = -1; if (input) input.value = ''; if (results) results.innerHTML = ''; }
+
+  function renderEmpty() {
+    if (!results) return;
+    results.innerHTML = `<div class="search-empty">${emptyText()}</div>`;
+  }
+  function renderNoResults() {
+    if (!results) return;
+    results.innerHTML = `<div class="search-empty">${noResultsText()}</div>`;
+  }
 
   input?.addEventListener('input', e => {
     clearTimeout(timer);
     timer = setTimeout(() => {
       if (!results) return;
-      if (!e.target.value.trim()) { results.innerHTML = '<div class="search-empty">Type to search…</div>'; return; }
-      const res = searchEngine.search(e.target.value);
-      if (!res.length) { results.innerHTML = '<div class="search-empty">No results</div>'; return; }
+      const v = (e.target as HTMLInputElement).value;
+      if (!v.trim()) { renderEmpty(); return; }
+      const res = searchEngine.search(v);
+      if (!res.length) { renderNoResults(); return; }
       idx = -1;
+      const localeTag = dateLocaleTag();
       results.innerHTML = res.map((r, i) => {
         const { title, description, slug, tags, date } = r.item;
-        const desc = searchEngine.highlight((description || '').slice(0, 140), e.target.value);
+        const desc = searchEngine.highlight((description || '').slice(0, 140), v);
         const tagList = tags ? tags.split(', ').filter(Boolean) : [];
-        const dateStr = date ? new Date(date).toLocaleDateString('default', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-        return `<a href="/posts/${slug}" class="result-item" data-i="${i}" style="animation-delay:${i * 50}ms">
-          <div class="result-title">${searchEngine.highlight(title, e.target.value)}</div>
+        const dateStr = date ? new Date(date).toLocaleDateString(localeTag, { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+        return `<a href="${postHrefFor(slug)}" class="result-item" data-i="${i}" style="animation-delay:${i * 50}ms">
+          <div class="result-title">${searchEngine.highlight(title, v)}</div>
           ${desc ? `<div class="result-desc">${desc}</div>` : ''}
           <div class="result-meta">
             ${dateStr ? `<span class="result-date">${dateStr}</span>` : ''}
-            ${tagList.length ? `<span class="result-tags">${tagList.map(t => `<span class="result-tag">${searchEngine.highlight(t, e.target.value)}</span>`).join('')}</span>` : ''}
+            ${tagList.length ? `<span class="result-tags">${tagList.map(t => `<span class="result-tag">${searchEngine.highlight(t, v)}</span>`).join('')}</span>` : ''}
           </div>
         </a>`;
       }).join('');
@@ -72,6 +129,14 @@
   overlay?.addEventListener('click', e => { if (e.target === overlay) close(); });
   document.addEventListener('open-search', open);
   document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); overlay?.hasAttribute('hidden') ? open() : close(); } });
+
+  document.addEventListener('locale-change', () => {
+    if (input) input.placeholder = placeholderText();
+    if (overlay && !overlay.hasAttribute('hidden')) {
+      const v = input?.value || '';
+      if (!v.trim()) renderEmpty();
+    }
+  });
 </script>
 
 <style>
@@ -215,7 +280,7 @@
   }
   :global([data-theme='dark']) .result-tag { border-color: #333; color: #777; }
 
-  mark {
+  :global(mark) {
     background: #000;
     color: #fff;
     padding: 0.05em 0.2em;

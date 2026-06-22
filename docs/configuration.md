@@ -11,9 +11,42 @@ export const siteConfig = {
   title: 'TerseBlog',              // 博客标题
   description: 'A minimalist...',  // 站点描述
   site: 'https://example.com',    // 网站 URL（用于 Sitemap/RSS）
-  language: 'zh-CN',              // 页面语言
+  language: 'en',                  // 默认页面语言（i18n 关闭时生效）
 };
 ```
+
+### 多语言配置 (i18n)
+
+```typescript
+i18n: {
+  enabled: true,                   // 开启/关闭多语言
+  defaultLocale: 'zh-CN',          // 默认语种（缺译时回退到此）
+  locales: ['en', 'zh-CN', 'zh-TW', 'ja'], // 支持的语言列表
+  prefixMap: {                     // URL 路径前缀映射
+    'en': 'en',
+    'zh-CN': 'zh-CN',
+    'zh-TW': 'zh-TW',
+    'ja': 'ja',
+  },
+},
+```
+
+便捷开关：
+
+```bash
+npm run i18n          # 查看当前状态
+npm run i18n:on       # 开启
+npm run i18n:off      # 关闭
+```
+
+**i18n 开启时**：每种语言用独立的 URL 前缀（如 `/zh-CN/posts/hello-world`），RSS 每语种独立，搜索索引按语种分割。UI 文案通过 `src/i18n/dictionaries/` 下的 JSON 文件管理。
+
+**i18n 关闭时**：退化为单语言模式，URL 无前缀，所有页面与原项目一致。
+
+**添加新语种**：
+1. 在 `locales` 和 `prefixMap` 中加入新语言
+2. 创建 `src/i18n/dictionaries/<locale>.json`（复制 en.json 翻译）
+3. 创建 `src/posts/<locale>/` 目录放译文
 
 ### 主题与样式
 
@@ -36,7 +69,7 @@ nav: [
 ],
 ```
 
-支持内部链接和外部链接（外部链接会自动添加 `target="_blank"`）。
+支持内部链接和外部链接（外部链接会自动添加 `target="_blank"`）。导航文案当前保持硬编码，不随语言切换（后续版本会接入 i18n 字典）。
 
 ### 作者信息
 
@@ -60,7 +93,7 @@ author: {
 ```typescript
 analytics: {
   umami: {
-    enabled: false,                    // 设为 true 启用
+    enabled: false,                      // 设为 true 启用
     src: 'https://umami.example.com/script.js',
     websiteId: 'your-website-id',
   },
@@ -92,9 +125,21 @@ rss: {
 },
 ```
 
+i18n 开启时每种语言生成独立的 RSS（路径为 `/<locale>/rss.xml`）。
+
 ## 添加博客文章
 
-在 `src/posts/` 目录下创建 `.md` 文件，格式如下：
+文章按语言分目录存放：
+
+```
+src/posts/
+├── en/           # 英文
+├── zh-CN/        # 简体中文（默认语种）
+├── zh-TW/        # 繁體中文
+└── ja/           # 日本語
+```
+
+在对应目录下创建 `.md` 文件，格式如下：
 
 ```markdown
 ---
@@ -121,6 +166,13 @@ updated: 2025-06-01
 | `tags` | ❌ | 标签数组 |
 | `draft` | ❌ | 草稿状态（生产环境不显示） |
 | `updated` | ❌ | 更新日期 |
+
+### 多语言文章
+
+- 同名文章放在不同语种子目录下（如 `zh-CN/hello.md` ↔ `en/hello.md`）
+- 每篇有独立的 frontmatter（`title`/`description`/`tags` 各自翻译）
+- 如果某个语种缺少某篇文章，**自动回退**到默认语种（`defaultLocale`）的内容
+- 例如：`/en/posts/foo` 不存在 → 显示 `zh-CN/posts/foo` 的内容（但 UI 仍为英文）
 
 ## LaTeX 数学公式
 
@@ -198,3 +250,7 @@ NODE_OPTIONS="--max-old-space-size=4096" npm run build
 ### 如何添加评论系统
 
 推荐集成 Giscus（基于 GitHub Discussions）或 Waline（支持自部署）。
+
+### i18n 构建产物会不会很多
+
+i18n 开启时每个语种生成完整的一套页面（文章数 × 4 × 各类页面）。如果只有 10 篇文章，约生成 100 个页面。只需确保部署平台支持（GitHub Pages / Cloudflare Pages 均无压力）。

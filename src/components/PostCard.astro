@@ -1,23 +1,29 @@
 ---
 import { formatDate } from '@/lib/utils';
+import { prefixFor, type Locale } from '@/i18n/config';
 
 export interface Props {
   slug: string; title: string; date: string; description: string;
   tags: string[]; readingTime: number; updated?: string;
+  t?: ((key: string, args?: Record<string, string | number>) => string) | null;
+  currentLocale?: Locale;
 }
-const { slug, title, date, description, tags, readingTime, updated } = Astro.props;
+const { slug, title, date, description, tags, readingTime, updated, t = null, currentLocale } = Astro.props;
 const showUpdated = updated && new Date(updated).getTime() - new Date(date).getTime() > 3 * 86400000;
+const tt = (key: string, fallback: string, args?: Record<string, string | number>) => t ? t(key, args) : fallback;
+
+const finalHref = currentLocale ? `/${prefixFor(currentLocale)}/posts/${slug}` : `/posts/${slug}`;
 ---
 
 <article class="post-card" data-reveal>
-  <a href={`/posts/${slug}`}>
+  <a href={finalHref}>
     <h2 class="post-title">{title}</h2>
     <p class="post-desc">{description}</p>
     <div class="post-meta">
-      <time datetime={date}>{formatDate(date)}</time>
+      <time datetime={date}>{formatDate(date, currentLocale)}</time>
       <span class="dot">·</span>
-      <span>{readingTime} min</span>
-      {showUpdated && <><span class="dot">·</span><span class="updated">Updated</span></>}
+      <span>{readingTime} {tt('postCard.min', 'min')}</span>
+      {showUpdated && <><span class="dot">·</span><span class="updated">{tt('postCard.updated', 'Updated')}</span></>}
     </div>
     <div class="post-tags">
       {tags.map((tag) => <span class="tag">{tag}</span>)}

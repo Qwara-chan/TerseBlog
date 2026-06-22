@@ -1,12 +1,22 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getAllPosts, getAllTags } from '@/lib/content';
+import { getAllPosts } from '@/lib/content';
+import { siteConfig } from '@/config';
+import RedirectToLocale from '@/components/RedirectToLocale.astro';
 
-const allPosts = getAllPosts(import.meta.glob('../../posts/*.md', { eager: true }));
-const tags = getAllTags(allPosts);
+const enabled = siteConfig.i18n.enabled;
+const allPosts = enabled ? [] : getAllPosts(import.meta.glob('../../posts/zh-CN/*.md', { eager: true }));
+const tags = (() => {
+  const map = new Map<string, number>();
+  for (const p of allPosts) for (const t of p.tags) map.set(t, (map.get(t) || 0) + 1);
+  return [...map.entries()].map(([tag, count]) => ({ tag, count })).sort((a, b) => b.count - a.count);
+})();
 const maxCount = Math.max(...tags.map(t => t.count), 1);
 ---
 
+{enabled && <RedirectToLocale title="Tags" description="Browse all tags" rest="tags" preserveQueryAndHash />}
+
+{enabled ? null : (
 <BaseLayout title="Tags" description="Browse all tags">
   <div class="container">
     <h1 class="page-title">Tags</h1>
@@ -28,3 +38,4 @@ const maxCount = Math.max(...tags.map(t => t.count), 1);
   .tag-item:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
   .tag-count { font-size: 0.75em; color: #bbb; margin-left: 0.3em; }
 </style>
+)}
