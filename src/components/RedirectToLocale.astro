@@ -56,17 +56,30 @@ const defaultPrefix = JSON.stringify(prefixMap[fallbackLocale]);
         else locale = ${JSON.stringify(fallbackLocale)};
       }
       var prefix = PREFIX_MAP[locale] || DEFAULT_PREFIX;
+      var notFound = ${JSON.stringify(toNotFound)};
+      var suffix = ${preserveQueryAndHash ? 'location.search + location.hash' : "''"};
+
+      // For 404 redirects: go straight to /<prefix>/404, ignore current path.
+      if (notFound) {
+        location.replace('/' + prefix + '/404' + suffix);
+        return;
+      }
+
       var path = ${JSON.stringify(rest ?? null)};
       if (path === null) path = location.pathname;
       // Strip trailing slashes — the site is built with trailingSlash: 'never'.
       path = path.replace(/\\\/+$/, '');
-      var suffix = ${preserveQueryAndHash ? 'location.search + location.hash' : "''"};
-      var notFound = ${JSON.stringify(toNotFound)};
-      var tail = notFound ? '/404' : '';
-      // When rest is explicitly set OR path is root, the target is just '/<prefix>'.
-      // Otherwise it is '/<prefix><path>'.
+      // If the current path already starts with a locale prefix (e.g. /en/foo),
+      // strip it so we don't double-prefix when switching locales.
+      var seg = path.split('/').filter(Boolean)[0];
+      if (seg && PREFIX_MAP[seg]) {
+        var parts = path.split('/').filter(Boolean).slice(1);
+        path = parts.length ? '/' + parts.join('/') : '';
+      }
+      // When path is empty (root), target is just '/<prefix>'.
+      // Otherwise it is '/<prefix><path>' (e.g. '/en/about').
       var target = path ? ('/' + prefix + path) : ('/' + prefix);
-      location.replace(target + tail + suffix);
+      location.replace(target + suffix);
     })();
   `} />
   <style>
