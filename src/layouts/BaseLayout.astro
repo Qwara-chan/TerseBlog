@@ -38,6 +38,11 @@ const pageDescription = description || siteConfig.description;
   <!-- KaTeX CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
 
+  <!-- Display font (Space Grotesk) — used only for large headings -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+
 
   <!-- Umami Analytics -->
   {siteConfig.analytics.umami.enabled && (
@@ -97,6 +102,9 @@ const pageDescription = description || siteConfig.description;
 
   <script is:inline>
     (function() {
+      // Mark JS available (gates reveal animations so no-JS still shows content)
+      document.documentElement.classList.add('js');
+
       // Disable transitions during page load to prevent FOUC
       document.documentElement.classList.add('disable-transitions');
 
@@ -199,6 +207,69 @@ const pageDescription = description || siteConfig.description;
       document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') close();
       });
+    })();
+  </script>
+
+  <!-- Global avant-garde motion: char-split, clip reveal, magnetic hover, active nav -->
+  <script is:inline>
+    (function () {
+      function initMotion() {
+        var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // Per-character entrance
+        var splits = document.querySelectorAll('[data-split]');
+        splits.forEach(function (el) {
+          if (el.dataset.splitDone) return;
+          var text = el.textContent || '';
+          el.setAttribute('aria-label', text);
+          el.textContent = '';
+          for (var i = 0; i < text.length; i++) {
+            var span = document.createElement('span');
+            span.className = 'char';
+            span.textContent = text[i] === ' ' ? '\u00A0' : text[i];
+            span.style.setProperty('--i', String(i));
+            el.appendChild(span);
+          }
+          el.dataset.splitDone = '1';
+        });
+
+        // Staggered clip-path reveal — guaranteed rAF execution
+        requestAnimationFrame(function () {
+          var reveals = document.querySelectorAll('[data-reveal]:not(.revealed)');
+          reveals.forEach(function (el, i) {
+            el.style.setProperty('--reveal-delay', i * 70 + 'ms');
+            el.classList.add('revealed');
+          });
+        });
+
+        // Magnetic hover (skip when reduced motion)
+        if (!reduce) {
+          var mags = document.querySelectorAll('[data-magnetic]');
+          mags.forEach(function (el) {
+            if (el.dataset.magDone) return;
+            el.dataset.magDone = '1';
+            el.addEventListener('mousemove', function (e) {
+              var r = el.getBoundingClientRect();
+              var x = (e.clientX - r.left - r.width / 2) / r.width;
+              var y = (e.clientY - r.top - r.height / 2) / r.height;
+              el.style.transform = 'translate(' + (x * 6).toFixed(2) + 'px, ' + (y * 6).toFixed(2) + 'px)';
+            });
+            el.addEventListener('mouseleave', function () { el.style.transform = ''; });
+          });
+        }
+
+        // Active nav marker
+        var path = location.pathname.replace(/\/+$/, '') || '/';
+        document.querySelectorAll('.nav-link').forEach(function (a) {
+          var href = (a.getAttribute('href') || '').replace(/\/+$/, '') || '/';
+          var isActive = href === path || (href !== '/' && path.startsWith(href + '/'));
+          if (isActive) a.setAttribute('data-active', '');
+          else a.removeAttribute('data-active');
+        });
+      }
+
+      initMotion();
+      document.addEventListener('astro:page-load', initMotion);
     })();
   </script>
 </body>

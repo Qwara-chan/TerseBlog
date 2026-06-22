@@ -33,6 +33,5 @@ const { current } = Astro.props;
 <style>
   .sort-toggle { font-size: 0.8rem; color: #888; cursor: pointer; border: 1px solid #ddd; padding: 0.3em 0.8em; transition: border-color 0.3s var(--ease-out-expo), color 0.3s var(--ease-out-expo); }
   :global([data-theme='dark']) .sort-toggle { border-color: #333; color: #999; }
-  .sort-toggle:hover { border-color: #000; color: #000; }
-  :global([data-theme='dark']) .sort-toggle:hover { border-color: #fff; color: #fff; }
+  .sort-toggle:hover { border-color: var(--accent); color: var(--accent); }
 </style>

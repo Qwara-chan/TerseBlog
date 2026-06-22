@@ -25,47 +25,22 @@ const showUpdated = updated && new Date(updated).getTime() - new Date(date).getT
   </a>
 </article>
 
-<script>
-  const cards = document.querySelectorAll<HTMLElement>('[data-reveal]');
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry, i) => {
-      if (entry.isIntersecting) {
-        const el = entry.target as HTMLElement;
-        const index = [...cards].indexOf(el);
-        el.style.setProperty('--reveal-delay', `${index * 60}ms`);
-        el.classList.add('revealed');
-        observer.unobserve(el);
-      }
-    });
-  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-
-  cards.forEach(card => observer.observe(card));
-</script>
-
 <style>
   .post-card {
-    padding: 1.5rem 0;
+    padding: 1.5rem 0 1.5rem 1rem;
     border-bottom: 1px solid #eee;
     border-left: 2px solid transparent;
-    padding-left: 1rem;
     margin-left: -1rem;
-    transition: border-color 0.35s var(--ease-out-expo), transform 0.35s var(--ease-spring), box-shadow 0.35s var(--ease-out-expo);
-
-    opacity: 0;
-    transform: translateY(16px);
+    transition: border-color 0.35s var(--ease-out-expo), transform 0.35s var(--ease-spring);
   }
   :global([data-theme='dark']) .post-card { border-color: #222; }
-  .post-card.revealed {
-    animation: card-in 0.55s var(--ease-out-expo) forwards;
-    animation-delay: var(--reveal-delay, 0ms);
-  }
   .post-card:last-child { border-bottom: none; }
   .post-card:hover {
-    transform: translateY(-2px);
-    border-left-color: #000;
+    transform: translateX(3px);
+    border-left-color: var(--accent);
   }
-  :global([data-theme='dark']) .post-card:hover { border-left-color: #eee; }
-  .post-title { font-size: 1.2rem; margin: 0 0 0.4rem; }
+  .post-title { font-size: 1.2rem; margin: 0 0 0.4rem; transition: color 0.3s var(--ease-out-expo); }
+  .post-card:hover .post-title { color: var(--accent); }
   .post-desc { color: #666; font-size: 0.9rem; line-height: 1.7; margin-bottom: 0.5rem; }
   :global([data-theme='dark']) .post-desc { color: #999; }
   .post-meta { font-size: 0.8rem; color: #999; display: flex; align-items: center; gap: 0.3rem; margin-bottom: 0.4rem; }
@@ -73,9 +48,4 @@ const showUpdated = updated && new Date(updated).getTime() - new Date(date).getT
   .dot { color: #ddd; }
   .updated { font-style: italic; }
   .post-tags { display: flex; flex-wrap: wrap; gap: 0.15rem; }
-
-  @keyframes card-in {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
 </style>

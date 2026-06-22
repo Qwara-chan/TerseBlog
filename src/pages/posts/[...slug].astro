@@ -29,13 +29,14 @@ const readingTime = estimateReadingTime(post.content);
     <div class="post-layout">
       <article class="post-content">
         <header class="post-header">
-          <h1 class="post-title">{post.title}</h1>
+          <h1 class="post-title" data-split>{post.title}</h1>
           <div class="post-meta">
             <time datetime={post.date}>{formatDate(post.date)}</time>
             <span class="dot">·</span>
             <span>{readingTime} min</span>
             {post.tags.length > 0 && <><span class="dot">·</span> {post.tags.map(t => <a href={`/tags/${t.toLowerCase()}`} class="tag">{t}</a>)}</>}
           </div>
+          <hr class="accent-rule post-rule" />
         </header>
 
         <DiffViewer originalDate={post.date} updatedDate={post.updated} />
@@ -59,20 +60,20 @@ const readingTime = estimateReadingTime(post.content);
   .post-content { flex: 1; min-width: 0; }
   .post-header { margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid #ddd; }
   :global([data-theme='dark']) .post-header { border-color: #222; }
-  .post-title { font-size: 2rem; margin: 0 0 0.6rem; letter-spacing: -0.03em; }
+  .post-title { font-family: var(--font-family-display); font-size: 2rem; margin: 0 0 0.6rem; letter-spacing: -0.02em; font-weight: 700; }
   .post-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 0.3rem; font-size: 0.85rem; color: #999; }
   :global([data-theme='dark']) .post-meta { color: #777; }
   .dot { color: #ddd; }
   :global([data-theme='dark']) .dot { color: #333; }
+  .post-rule { margin-top: 1.5rem; }
   .post-nav { display: flex; justify-content: space-between; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #ddd; gap: 1rem; }
   :global([data-theme='dark']) .post-nav { border-color: #222; }
-  .nav-card { flex: 1; display: flex; flex-direction: column; gap: 0.25rem; padding: 1rem 1.25rem; border: 1px solid #ddd; transition: border-color 0.2s; }
+  .nav-card { flex: 1; display: flex; flex-direction: column; gap: 0.25rem; padding: 1rem 1.25rem; border: 1px solid #ddd; transition: border-color 0.3s var(--ease-out-expo), transform 0.3s var(--ease-spring); }
   .nav-card.next { text-align: right; }
   :global([data-theme='dark']) .nav-card { border-color: #333; }
-  .nav-card:hover { border-color: #000; }
-  :global([data-theme='dark']) .nav-card:hover { border-color: #fff; }
+  .nav-card:hover { border-color: var(--accent); transform: translateY(-2px); }
   .nav-label { font-size: 0.75rem; color: #999; letter-spacing: 0.03em; }
   .nav-title { font-weight: 600; font-size: 0.9rem; }
-  .nav-card:hover .nav-title { text-decoration: underline; }
+  .nav-card:hover .nav-title { color: var(--accent); }
   @media (max-width: 1024px) { .post-layout { flex-direction: column; } .post-title { font-size: 1.6rem; } .post-nav { flex-direction: column; } }
 </style>
