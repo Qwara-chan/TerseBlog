@@ -1,89 +1,82 @@
 ---
 import { siteConfig } from '@/config';
-import BaseLayout from '@/layouts/BaseLayout.astro';
 import { DEFAULT_LOCALE, prefixFor, type Locale } from '@/i18n/config';
 
 export interface Props {
   title: string;
   description?: string;
-  /**
-   * When provided, redirects to `/<prefix>/<rest>` (e.g. rest = 'about' → '/zh-CN/about').
-   * When undefined, the current `location.pathname` is reused.
-   */
   rest?: string;
-  /** Locale used when no cookie / browser language matches. Defaults to DEFAULT_LOCALE. */
   fallbackLocale?: Locale;
-  /** When true, always sends the user to the dedicated 404 page under the locale prefix. */
   toNotFound?: boolean;
-  /** When true, also passes the current search and hash through to the redirect target. */
   preserveQueryAndHash?: boolean;
 }
 
 const { title, description, rest, fallbackLocale = DEFAULT_LOCALE, toNotFound = false, preserveQueryAndHash = false } = Astro.props;
-const enabled = siteConfig.i18n.enabled;
 const locales = siteConfig.i18n.locales;
 const prefixMap = siteConfig.i18n.prefixMap;
 
-// Build the inline map `{"en":"en","zh-CN":"zh-CN",...}` from config so we never go stale.
-const prefixMapLiteral = JSON.stringify(
-  Object.fromEntries(locales.map(l => [l, prefixMap[l]]))
-);
-const defaultPrefix = JSON.stringify(prefixMap[fallbackLocale]);
+const prefixMapObj = Object.fromEntries(locales.map(l => [l, prefixMap[l]]));
+const defaultPrefix = prefixMap[fallbackLocale];
+const restValue = rest === undefined ? null : rest;
+
+const scriptContent = [
+  '(function() {',
+  '  var SUPPORTED = ' + JSON.stringify(locales) + ';',
+  '  var PREFIX_MAP = ' + JSON.stringify(prefixMapObj) + ';',
+  '  var DEFAULT_PREFIX = ' + JSON.stringify(defaultPrefix) + ';',
+  '  var FALLBACK = ' + JSON.stringify(fallbackLocale) + ';',
+  '  var REST = ' + JSON.stringify(restValue) + ';',
+  '  var NOT_FOUND = ' + JSON.stringify(toNotFound) + ';',
+  '  var PRESERVE = ' + JSON.stringify(preserveQueryAndHash) + ';',
+  '  function getCookie(n) {',
+  '    var m = document.cookie.match(new RegExp("(?:^|; )" + n + "=([^;]*)"));',
+  '    return m ? decodeURIComponent(m[1]) : null;',
+  '  }',
+  '  var cookie = getCookie("locale");',
+  '  var al = navigator.language || "";',
+  '  var locale = cookie;',
+  '  if (!locale || SUPPORTED.indexOf(locale) === -1) {',
+  '    if (/zh-Hant|zh-TW|zh-HK/i.test(al)) locale = "zh-TW";',
+  '    else if (/^zh/i.test(al)) locale = "zh-CN";',
+  '    else if (/^ja/i.test(al)) locale = "ja";',
+  '    else if (/^en/i.test(al)) locale = "en";',
+  '    else locale = FALLBACK;',
+  '  }',
+  '  var prefix = PREFIX_MAP[locale] || DEFAULT_PREFIX;',
+  '  var suffix = PRESERVE ? (location.search + location.hash) : "";',
+  '  if (NOT_FOUND) {',
+  '    location.replace("/" + prefix + "/404" + suffix);',
+  '    return;',
+  '  }',
+  '  var path = REST;',
+  '  if (path === null) path = location.pathname;',
+  '  path = path.replace(/\\.html$/, "").replace(/\\/+$/, "");',
+  '  var seg = path.split("/").filter(Boolean)[0];',
+  '  if (seg && PREFIX_MAP[seg]) {',
+  '    var parts = path.split("/").filter(Boolean).slice(1);',
+  '    path = parts.length ? "/" + parts.join("/") : "";',
+  '  }',
+  '  var target = path ? ("/" + prefix + path) : ("/" + prefix);',
+  '  location.replace(target + suffix);',
+  '})();',
+].join('\n');
 ---
 
-{enabled && (
-<BaseLayout title={title} description={description}>
-  <div class="redirect-notice">
-    <p>Redirecting…</p>
-  </div>
-  <script is:inline set:html={`
-    (function() {
-      var SUPPORTED = ${JSON.stringify(locales as readonly string[])};
-      var PREFIX_MAP = ${prefixMapLiteral};
-      var DEFAULT_PREFIX = ${defaultPrefix};
-      function getCookie(n) {
-        var m = document.cookie.match(new RegExp('(?:^|; )' + n + '=([^;]*)'));
-        return m ? decodeURIComponent(m[1]) : null;
-      }
-      var cookie = getCookie('locale');
-      var al = navigator.language || '';
-      var locale = cookie;
-      if (!locale || SUPPORTED.indexOf(locale) === -1) {
-        if (/zh-Hant|zh-TW|zh-HK/i.test(al)) locale = 'zh-TW';
-        else if (/^zh/i.test(al)) locale = 'zh-CN';
-        else if (/^ja/i.test(al)) locale = 'ja';
-        else if (/^en/i.test(al)) locale = 'en';
-        else locale = ${JSON.stringify(fallbackLocale)};
-      }
-      var prefix = PREFIX_MAP[locale] || DEFAULT_PREFIX;
-      var notFound = ${JSON.stringify(toNotFound)};
-      var suffix = ${preserveQueryAndHash ? 'location.search + location.hash' : "''"};
-
-      // For 404 redirects: go straight to /<prefix>/404, ignore current path.
-      if (notFound) {
-        location.replace('/' + prefix + '/404' + suffix);
-        return;
-      }
-
-      var path = ${JSON.stringify(rest ?? null)};
-      if (path === null) path = location.pathname;
-      // Strip trailing slashes — the site is built with trailingSlash: 'never'.
-      path = path.replace(/\\\/+$/, '');
-      // If the current path already starts with a locale prefix (e.g. /en/foo),
-      // strip it so we don't double-prefix when switching locales.
-      var seg = path.split('/').filter(Boolean)[0];
-      if (seg && PREFIX_MAP[seg]) {
-        var parts = path.split('/').filter(Boolean).slice(1);
-        path = parts.length ? '/' + parts.join('/') : '';
-      }
-      // When path is empty (root), target is just '/<prefix>'.
-      // Otherwise it is '/<prefix><path>' (e.g. '/en/about').
-      var target = path ? ('/' + prefix + path) : ('/' + prefix);
-      location.replace(target + suffix);
-    })();
-  `} />
+<!DOCTYPE html>
+<html lang={fallbackLocale}>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  {description && <meta name="description" content={description} />}
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <style>
-    .redirect-notice { padding: 4rem 0; text-align: center; color: #888; }
+    html { background: #fff; }
+    :root { color-scheme: light dark; }
+    @media (prefers-color-scheme: dark) { html { background: #111; } }
   </style>
-</BaseLayout>
-)}
+</head>
+<body>
+  <script is:inline set:html={scriptContent}></script>
+</body>
+</html>
