@@ -58,10 +58,15 @@ const defaultPrefix = JSON.stringify(prefixMap[fallbackLocale]);
       var prefix = PREFIX_MAP[locale] || DEFAULT_PREFIX;
       var path = ${JSON.stringify(rest ?? null)};
       if (path === null) path = location.pathname;
+      // Strip trailing slashes — the site is built with trailingSlash: 'never'.
+      path = path.replace(/\\\/+$/, '');
       var suffix = ${preserveQueryAndHash ? 'location.search + location.hash' : "''"};
       var notFound = ${JSON.stringify(toNotFound)};
       var tail = notFound ? '/404' : '';
-      location.replace('/' + prefix + path + tail + suffix);
+      // When rest is explicitly set OR path is root, the target is just '/<prefix>'.
+      // Otherwise it is '/<prefix><path>'.
+      var target = path ? ('/' + prefix + path) : ('/' + prefix);
+      location.replace(target + tail + suffix);
     })();
   `} />
   <style>
