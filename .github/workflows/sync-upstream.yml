@@ -25,6 +25,10 @@ jobs:
           git remote add upstream https://github.com/Qwara-chan/TerseBlog.git
           git fetch upstream
 
+      - name: Merge upstream changes
+        run: |
+          git merge upstream/main --no-edit --allow-unrelated-histories
+
       - name: Create sync PR
         uses: peter-evans/create-pull-request@v7
         with:
